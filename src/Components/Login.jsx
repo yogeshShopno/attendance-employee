@@ -37,7 +37,10 @@ const Login = () => {
                 headers: {
                     "Content-Type": "multipart/form-data"
                 }
+
             });
+                console.log(res.data.data);
+
             navigate("/home");
 
         } catch (error) {
