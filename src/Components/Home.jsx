@@ -1,31 +1,75 @@
 import React, { useState, useEffect } from 'react';
-import { Clock, LogOut, Calendar, User } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { Clock, LogOut, Calendar, User, Activity, Timer } from 'lucide-react';
 import api from '../api/axiosInstance';
-const attendanceData = [
-  { date: '02-06-2025', clockIn: '09:17:18', clockOut: '18:31:19', totalHr: '09 hr 14 min' },
-  { date: '03-06-2025', clockIn: '09:19:05', clockOut: '20:16:34', totalHr: '10 hr 57 min' },
-  { date: '04-06-2025', clockIn: '09:25:57', clockOut: '19:26:13', totalHr: '10 hr 00 min' },
-  { date: '05-06-2025', clockIn: '09:24:53', clockOut: '18:36:53', totalHr: '09 hr 12 min' },
-  { date: '06-06-2025', clockIn: '07:52:31', clockOut: '20:08:48', totalHr: '12 hr 16 min' },
-  { date: '07-06-2025', clockIn: '17:49:58', clockOut: '18:30:00', totalHr: '00 hr 40 min' },
-  { date: '08-06-2025', clockIn: '20:51:47', clockOut: '22:23:48', totalHr: '01 hr 32 min' },
-  { date: '09-06-2025', clockIn: '00:00:34', clockOut: '20:16:50', totalHr: '20 hr 16 min' },
-  { date: '10-06-2025', clockIn: '11:59:56', clockOut: '18:30:00', totalHr: '06 hr 30 min' },
-  { date: '11-06-2025', clockIn: '01:53:08', clockOut: '21:46:54', totalHr: '19 hr 53 min' },
-  { date: '12-06-2025', clockIn: '10:09:32', clockOut: '19:19:58', totalHr: '09 hr 10 min' },
-  { date: '13-06-2025', clockIn: '09:23:03', clockOut: '18:57:08', totalHr: '09 hr 34 min' },
-  { date: '14-06-2025', clockIn: '09:30:54', clockOut: '18:33:19', totalHr: '09 hr 02 min' },
-  { date: '16-06-2025', clockIn: '09:24:00', clockOut: '18:31:31', totalHr: '09 hr 07 min' },
-];
+import Cookies from 'js-cookie';
 
 const Home = () => {
-  const endTime = "6:30 PM";
-  const remainingTime = "7 hrs 26 min";
-  const navigate = useNavigate();
 
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
+  const [attendanceData, setAttendanceData] = useState([]);
+  const [isLoadingAttendance, setIsLoadingAttendance] = useState(true);
+  const [currentStatus, setCurrentStatus] = useState(null); // 1 = need to clock in, 2 = need to clock out
+  const [isLoadingStatus, setIsLoadingStatus] = useState(true);
+  const userId = Cookies.get('user_id');
+  const employeeId = Cookies.get('employee_id');
+
+  // Fetch current status and attendance data on component mount
+  useEffect(() => {
+    fetchCurrentStatus();
+    fetchAttendanceData();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const fetchCurrentStatus = async () => {
+    setIsLoadingStatus(true);
+
+    const formData = new FormData();
+    formData.append("user_id", userId);
+    formData.append("employee_id", employeeId);
+
+    try {
+      const res = await api.post("emp_attendance_current_status", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+
+      if (res.data && res.data.success && res.data.data) {
+        const status = parseInt(res.data.data.status);
+        setCurrentStatus(status);
+      } else {
+        setCurrentStatus(1); // Default to need clock in
+      }
+    } catch (error) {
+      console.error("Status fetch error:", error);
+      setCurrentStatus(1); // Default to need clock in on error
+    } finally {
+      setIsLoadingStatus(false);
+    }
+  };
+
+  const fetchAttendanceData = async () => {
+    setIsLoadingAttendance(true);
+    setError("");
+
+    const formData = new FormData();
+    formData.append("user_id", userId);
+    formData.append("employee_id", employeeId);
+
+    try {
+      const res = await api.post("emp_attendance_list", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+
+      if (res.data && res.data.success && res.data.data) {
+        setAttendanceData(res.data.data);
+      }
+    } catch (error) {
+      setError("Failed to fetch attendance data. Please try again.");
+      console.error("Attendance fetch error:", error);
+    } finally {
+      setIsLoadingAttendance(false);
+    }
+  };
 
   const handleClockInOut = async (e) => {
     e.preventDefault();
@@ -33,64 +77,250 @@ const Home = () => {
     setError("");
 
     const formData = new FormData();
-    formData.append("user_id", 1); // Replace with actual user_id
-    formData.append("employee_id", 1); // Replace with actual employee_id
+    formData.append("user_id", userId);
+    formData.append("employee_id", employeeId);
 
     try {
+      // eslint-disable-next-line no-unused-vars
       const res = await api.post("emp_clock_in_and_clock_out", formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
-      navigate("/home");
+
+      // Refresh both status and attendance data after successful clock in/out
+      await Promise.all([fetchCurrentStatus(), fetchAttendanceData()]);
+
     } catch (error) {
       setError("Clock in/out failed. Try again.");
+      console.error("Clock in/out error:", error);
     } finally {
       setIsLoading(false);
     }
   };
 
+  const getCurrentDateTime = () => {
+    const now = new Date();
+    return {
+      date: now.toLocaleDateString('en-GB', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric'
+      }),
+      time: now.toLocaleTimeString('en-US', {
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: true
+      })
+    };
+  };
+
+  const { date: currentDate, time: currentTime } = getCurrentDateTime();
+
+  const getStatusInfo = () => {
+    if (isLoadingStatus) return {
+      text: "Loading...",
+      color: "text-gray-500",
+      bgColor: "bg-gray-100",
+      buttonText: "Loading...",
+      buttonColor: "bg-gray-400"
+    };
+
+    if (currentStatus === 1 || currentStatus === "1") {
+      // Status 1 = Need to clock in
+      return {
+        text: "Clocked Out",
+        color: "text-orange-600",
+        bgColor: "bg-orange-50",
+        buttonText: "Clock In",
+        buttonColor: "bg-green-500 hover:bg-green-600"
+      };
+    } else if (currentStatus === 2 || currentStatus === "2") {
+      // Status 2 = Need to clock out (currently clocked in)
+      return {
+        text: "Clocked In",
+        color: "text-green-600",
+        bgColor: "bg-green-50",
+        buttonText: "Clock Out",
+        buttonColor: "bg-red-500 hover:bg-red-600"
+      };
+    } else {
+      // Default to need clock in
+      return {
+        text: "Clocked Out",
+        color: "text-orange-600",
+        bgColor: "bg-orange-50",
+        buttonText: "Clock In",
+        buttonColor: "bg-green-500 hover:bg-green-600"
+      };
+    }
+  };
+
+  const statusInfo = getStatusInfo();
+
   return (
-    <div className="min-h-screen bg-[#111827] p-6 text-white">
-      <div className="flex justify-between items-center mb-4">
-        <div>
-          <h2 className="text-2xl font-bold flex items-center gap-2">👋 hello Yogesh, Have a nice day!</h2>
-          <div className="text-blue-400 font-semibold mt-1">Your End Time : {endTime}</div>
-          <div className="mt-1">Time remaining until end : {remainingTime}</div>
-        </div>
-        <div>
-          <button
-            onClick={handleClockInOut}
-            className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded"
-          >
-            {isLoading ? "Processing..." : "Clock In/Out"}
-          </button>
+    <div className="min-h-screen bg-gray-50">
+      {/* Header */}
+      <div className="bg-white shadow-sm border-b border-gray-200">
+        <div className="max-w-7xl mx-auto px-6 py-4">
+          <div className="flex justify-between items-center">
+            <div className="flex items-center space-x-4">
+              <div className="p-2 bg-blue-100 rounded-lg">
+                <User className="h-8 w-8 text-blue-600" />
+              </div>
+              <div>
+                <h1 className="text-2xl font-bold text-gray-900">Welcome back, Yogesh!</h1>
+                <p className="text-gray-600">Have a productive day ahead</p>
+              </div>
+            </div>
+            <div className="text-right">
+              <div className="text-gray-500 text-sm">Today</div>
+              <div className="text-gray-900 font-semibold">{currentDate}</div>
+              <div className="text-blue-600 font-mono">{currentTime}</div>
+            </div>
+          </div>
         </div>
       </div>
 
-      {error && <div className="text-red-400 mb-4">{error}</div>}
+      <div className="max-w-7xl mx-auto px-6 py-8">
+        {/* Status Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+          {/* Current Status Card */}
+          <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center space-x-3">
+                <div className={`p-2 rounded-lg ${(currentStatus === 2 || currentStatus === "2") ? 'bg-green-100' : 'bg-orange-100'
+                  }`}>
+                  <Activity className={`h-5 w-5 ${(currentStatus === 2 || currentStatus === "2") ? 'text-green-600' : 'text-orange-600'
+                    }`} />
+                </div>
+                <div>
+                  <h3 className="text-gray-900 font-semibold">Current Status</h3>
+                  <p className={`text-sm ${statusInfo.color}`}>{statusInfo.text}</p>
+                </div>
+              </div>
+              <div className={`px-3 py-1 rounded-full text-xs font-medium ${statusInfo.bgColor} ${statusInfo.color}`}>
+                {statusInfo.text}
+              </div>
+            </div>
 
-      <div className="overflow-x-auto mt-6">
-        <table className="w-full text-left border-collapse">
-          <thead>
-            <tr className="text-gray-300">
-              <th className="p-3 border-b">No</th>
-              <th className="p-3 border-b">Date</th>
-              <th className="p-3 border-b">Clock In</th>
-              <th className="p-3 border-b">Clock Out</th>
-              <th className="p-3 border-b">Total Hr</th>
-            </tr>
-          </thead>
-          <tbody>
-            {attendanceData.map((entry, index) => (
-              <tr key={index} className="even:bg-[#1f2937] hover:bg-[#374151]">
-                <td className="p-3 border-b">{index + 1}</td>
-                <td className="p-3 border-b">{entry.date}</td>
-                <td className="p-3 border-b">{entry.clockIn}</td>
-                <td className="p-3 border-b">{entry.clockOut}</td>
-                <td className="p-3 border-b">{entry.totalHr}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+            <button
+              onClick={handleClockInOut}
+              disabled={isLoading || isLoadingStatus}
+              className={`w-full ${statusInfo.buttonColor} disabled:opacity-50 disabled:cursor-not-allowed text-white px-4 py-3 rounded-lg font-semibold transition-all duration-200 flex items-center justify-center space-x-2 shadow-sm hover:shadow-md`}
+            >
+              <Clock className="h-4 w-4" />
+              <span>{isLoading ? "Processing..." : statusInfo.buttonText}</span>
+            </button>
+          </div>
+
+          {/* Time Tracking Card */}
+          <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
+            <div className="flex items-center space-x-3 mb-4">
+              <div className="p-2 bg-purple-100 rounded-lg">
+                <Timer className="h-5 w-5 text-purple-600" />
+              </div>
+              <div>
+                <h3 className="text-gray-900 font-semibold">Time Tracking</h3>
+                <p className="text-gray-500 text-sm">Today's Progress</p>
+              </div>
+            </div>
+            <div className="space-y-2">
+              <div className="flex justify-between text-sm">
+                <span className="text-gray-500">Target End Time</span>
+                <span className="text-gray-900 font-medium">6:30 PM</span>
+              </div>
+              <div className="flex justify-between text-sm">
+                <span className="text-gray-500">Time Remaining</span>
+                <span className="text-purple-600 font-medium">7 hrs 26 min</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Quick Stats Card */}
+          <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
+            <div className="flex items-center space-x-3 mb-4">
+              <div className="p-2 bg-emerald-100 rounded-lg">
+                <Calendar className="h-5 w-5 text-emerald-600" />
+              </div>
+              <div>
+                <h3 className="text-gray-900 font-semibold">This Month</h3>
+                <p className="text-gray-500 text-sm">Attendance Summary</p>
+              </div>
+            </div>
+            <div className="space-y-2">
+              <div className="flex justify-between text-sm">
+                <span className="text-gray-500">Total Records</span>
+                <span className="text-gray-900 font-medium">{attendanceData.length}</span>
+              </div>
+              <div className="flex justify-between text-sm">
+                <span className="text-gray-500">This Week</span>
+                <span className="text-emerald-600 font-medium">5 days</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Error Display */}
+        {error && (
+          <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+            <p className="text-red-600">{error}</p>
+          </div>
+        )}
+
+        {/* Attendance Table */}
+        <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+          <div className="px-6 py-4 border-b border-gray-200 bg-gray-50">
+            <h2 className="text-xl font-semibold text-gray-900 flex items-center space-x-2">
+              <Calendar className="h-5 w-5 text-blue-600" />
+              <span>Attendance History</span>
+            </h2>
+          </div>
+
+          <div className="overflow-x-auto">
+            {isLoadingAttendance ? (
+              <div className="text-center py-12">
+                <div className="inline-flex items-center space-x-2 text-gray-500">
+                  <Clock className="h-5 w-5 animate-spin" />
+                  <span>Loading attendance data...</span>
+                </div>
+              </div>
+            ) : attendanceData.length === 0 ? (
+              <div className="text-center py-12">
+                <Calendar className="h-12 w-12 text-gray-300 mx-auto mb-4" />
+                <p className="text-gray-500">No attendance records found</p>
+              </div>
+            ) : (
+              <table className="w-full">
+                <thead>
+                  <tr className="bg-gray-50">
+                    <th className="text-left px-6 py-4 text-gray-700 font-semibold border-b border-gray-200">Date</th>
+                    <th className="text-left px-6 py-4 text-gray-700 font-semibold border-b border-gray-200">Clock In</th>
+                    <th className="text-left px-6 py-4 text-gray-700 font-semibold border-b border-gray-200">Clock Out</th>
+                    <th className="text-left px-6 py-4 text-gray-700 font-semibold border-b border-gray-200">Status</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-200">
+                  {attendanceData.map((entry) => (
+                    <tr key={entry.id} className="hover:bg-gray-50 transition-colors">
+                      <td className="px-6 py-4 text-gray-900 font-medium">{entry.created_at}</td>
+                      <td className="px-6 py-4 text-gray-700">{entry.clock_in}</td>
+                      <td className="px-6 py-4 text-gray-700">
+                        {entry.clock_out || <span className="text-gray-400">--</span>}
+                      </td>
+                      <td className="px-6 py-4">
+                        <span className={`px-3 py-1 rounded-full text-xs font-medium ${entry.status === "1"
+                          ? "bg-green-100 text-green-700"
+                          : "bg-gray-100 text-gray-700"
+                          }`}>
+                          {entry.status === "1" ? "Active" : "Completed"}
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
+          </div>
+        </div>
       </div>
     </div>
   );
