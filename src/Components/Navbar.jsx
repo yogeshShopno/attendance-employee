@@ -61,7 +61,8 @@ const Navbar = () => {
 
                         {/* User Name */}
                         <span className="text-gray-700 font-medium hidden sm:inline-block max-w-32 truncate">
-                            Username                        </span>
+                                                        {employee?.full_name || ""}
+                        </span>
 
                         {/* Dropdown Arrow */}
                         <ChevronDown
