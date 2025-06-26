@@ -2,6 +2,8 @@
 import { useState } from "react";
 import { Mail, Lock, Eye, EyeOff } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import Cookies from 'js-cookie';
+
 // import axios from "axios";
 import api from '../api/axiosInstance';
 
@@ -39,8 +41,7 @@ const Login = () => {
                 }
 
             });
-                console.log(res.data.data);
-
+            Cookies.set('user_id', res?.data?.employee_data?.employee_id, { expires: 7 }); 
             navigate("/home");
 
         } catch (error) {
@@ -55,9 +56,6 @@ const Login = () => {
             setIsLoading(false);
         }
     };
-
-
-
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 flex items-center justify-center p-4">
