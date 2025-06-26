@@ -42,7 +42,9 @@ const Login = () => {
             if (res?.data?.status !== "success") {
                 const employeeData = res?.data?.employee_data;
 
-                Cookies.set('user_id', res?.data?.employee_data?.employee_id, { expires: 7 });
+                Cookies.set('user_id', res?.data?.employee_data?.user_id, { expires: 7 });
+                Cookies.set('employee_id', res?.data?.employee_data?.employee_id, { expires: 7 });
+
                 localStorage.setItem('employee_data', JSON.stringify(employeeData));
                 navigate("/home");
             } else {

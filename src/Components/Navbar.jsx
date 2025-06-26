@@ -25,6 +25,8 @@ const Navbar = () => {
     // Handle logout with confirmation
     const handleLogout = () => {
         Cookies.remove('user_id');
+        Cookies.remove('employee_id');
+
         navigate("/");
 
     };
