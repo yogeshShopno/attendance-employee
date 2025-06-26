@@ -37,108 +37,45 @@ const Sidebar = () => {
             icon: Users,
             hasSubmenu: true,
             path: '/employee',
-            submenu: [
-                { label: 'Employee List', path: '/employee' },
-                { label: 'Add Employee', path: '/add-employee' },
-                { label: 'Department', path: '/departments' },
-                { label: 'Designation', path: '/designation' },
-                { label: 'Branch', path: '/branches' },
-            ]
-        },
-
-        {
-            id: 'shift',
-            label: 'Shift Management',
-            icon: Clock,
-            hasSubmenu: true,
-            path: "/shift-management",
-            submenu: [
-                { label: 'Shifts', path: '/shift-management' },
-            ]
-        },
-
-        {
-            id: 'leaves',
-            label: 'Leaves & Holidays',
-            icon: Calendar,
-            hasSubmenu: true,
-            path: '/leaveapplication',
-            submenu: [
-                { label: 'Leave Application', path: '/leaveapplication' },
-                { label: 'Leave Requests', path: '/leavestatusPage' },
-                // { label: 'Holiday Calendar', path: '/holidaycalender' },
-                // { label: 'Policy', path: '/leaves/policy' }
-            ]
+   
         },
 
         // {
-        //     id: 'approval',
-        //     label: 'Approval Requests',
-        //     icon: CheckSquare,
-        //     path: '/approval',
+        //     id: 'leaves',
+        //     label: 'Leaves & Holidays',
+        //     icon: Calendar,
+        //     hasSubmenu: true,
+        //     path: '/leaveapplication',
+        //     submenu: [
+        //         { label: 'Leave Application', path: '/leaveapplication' },
+        //         { label: 'Leave Requests', path: '/leavestatusPage' },
+       
+        //     ]
         // },
 
-        {
-            id: 'payroll',
-            label: 'Payroll Pending',
-            icon: DollarSign,
-            hasSubmenu: true,
-            path: '/bulk-attendance',
-            tag: 'New',
-            submenu: [
-                { label: 'Bulk Attendance', path: '/bulk-attendance' },
-                { label: 'Monthly Payroll', path: '/monthly-payroll' },
-                { label: 'Hourly Payroll', path: '/Hourly-payroll' },
-                { label: 'Finalize Payroll', path: '/Finalize-payroll' },
-            ]
-        },
 
-        {
-            id: 'loans',
-            label: 'Loans & Advances working',
-            icon: Briefcase,
-            path: '/loans',
-        },
+        // {
+        //     id: 'payroll',
+        //     label: 'Payroll Pending',
+        //     icon: DollarSign,
+        //     hasSubmenu: true,
+        //     path: '/bulk-attendance',
+        //     tag: 'New',
+        //     submenu: [
+        //         { label: 'Bulk Attendance', path: '/bulk-attendance' },
+        //         { label: 'Monthly Payroll', path: '/monthly-payroll' },
+        //         { label: 'Hourly Payroll', path: '/Hourly-payroll' },
+        //         { label: 'Finalize Payroll', path: '/Finalize-payroll' },
+        //     ]
+        // },
 
-        {
-            id: 'reports',
-            label: 'Reports Pending',
-            icon: BarChart2,
-            hasSubmenu: true,
-            path: '/reports',
-            submenu: [
-                { label: 'All Reports', path: '/reports' },
-                { label: 'Attendance', path: '/reports/attendance' },
-                { label: 'Performance', path: '/reports/performance' },
-                { label: 'Financial', path: '/reports/financial' }
-            ]
-        },
+        // {
+        //     id: 'loans',
+        //     label: 'Loans & Advances working',
+        //     icon: Briefcase,
+        //     path: '/loans',
+        // },
 
-        {
-            id: 'user',
-            label: 'User Management',
-            icon: User,
-            hasSubmenu: true,
-            path: '/usermanage',
-            submenu: [
-                { label: 'Users', path: '/usermanage' },
-                { label: 'Roles', path: '/role' },
-            ]
-        },
-
-        {
-            id: 'configuration',
-            label: 'Configuration Pending',
-            icon: Settings,
-            hasSubmenu: true,
-            path: '/configuration',
-            submenu: [
-                { label: 'Master', path: '/configuration' },
-                { label: 'Company Profile', path: '/configuration/profile' },
-                { label: 'Notifications', path: '/configuration/notifications' },
-                { label: 'Integrations', path: '/configuration/integrations' }
-            ]
-        }
     ];
 
     const getActiveItemId = () => {

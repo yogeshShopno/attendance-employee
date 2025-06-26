@@ -22,7 +22,6 @@ const Navbar = () => {
     // Handle logout with confirmation
     const handleLogout = () => {
         if (window.confirm('Are you sure you want to logout?')) {
-            logout();
             dispatch(clearPermissions());
 
         }
@@ -73,68 +72,7 @@ const Navbar = () => {
                         />
                     </button>
 
-                    {/* Dropdown Menu */}
-                    {isDropdownOpen && (
-                        <div className="absolute right-0 top-12 bg-white border border-gray-200 rounded-lg shadow-lg w-80 overflow-hidden">
-                            {/* User Info Header */}
-                            <div className="px-4 py-3 bg-gray-50 border-b">
-                                <div className="flex items-center space-x-3">
-                                    <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-semibold">
-                                        {getUserInitials(user?.full_name)}
-                                    </div>
-                                    <div>
-                                        <h3 className="font-semibold text-gray-800">
-                                            {user?.full_name || user?.name || user?.username || 'User'}
-                                        </h3>
-                                        <p className="text-sm text-gray-600">
-                                            {user?.email || user?.username || user?.number || 'N/A'}
-                                        </p>
-                                    </div>
-                                </div>
-                            </div>
-
-                            {/* User Details */}
-                            <div className="px-4 py-3 border-b">
-                                <h4 className="text-sm font-semibold text-gray-700 mb-2">Account Details</h4>
-                                <div className="space-y-1 text-sm text-gray-600">
-                                    <div className="flex justify-between">
-                                        <span>User ID:</span>
-                                        <span className="font-mono">{user?.user_id || 'N/A'}</span>
-                                    </div>
-                                    <div className="flex justify-between">
-                                        <span>Username:</span>
-                                        <span className="font-mono">{user?.username || 'N/A'}</span>
-                                    </div>
-                                    <div className="flex justify-between">
-                                        <span>Phone:</span>
-                                        <span className="font-mono">{user?.number || 'N/A'}</span>
-                                    </div>
-                                    {user?.email && (
-                                        <div className="flex justify-between">
-                                            <span>Email:</span>
-                                            <span className="font-mono truncate ml-2">{user.email}</span>
-                                        </div>
-                                    )}
-                                </div>
-                            </div>
-
-                            {/* Menu Actions */}
-                            <div className="py-2">
-                                <button className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100 flex items-center space-x-2">
-                                    <Settings size={16} />
-                                    <span>Settings</span>
-                                </button>
-
-                                <button
-                                    onClick={handleLogout}
-                                    className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-red-50 flex items-center space-x-2"
-                                >
-                                    <LogOut size={16} />
-                                    <span>Logout</span>
-                                </button>
-                            </div>
-                        </div>
-                    )}
+             
                 </div>
             </div>
         </div>
