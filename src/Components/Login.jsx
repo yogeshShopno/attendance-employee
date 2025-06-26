@@ -8,8 +8,6 @@ import Cookies from 'js-cookie';
 import api from '../api/axiosInstance';
 
 // import redux from;
-
-
 const Login = () => {
     const [number, setNumber] = useState("7412589633");
     const [password, setPassword] = useState("123456");
@@ -41,8 +39,15 @@ const Login = () => {
                 }
 
             });
-            Cookies.set('user_id', res?.data?.employee_data?.employee_id, { expires: 7 }); 
-            navigate("/home");
+            if (res?.data?.status !== "success") {
+                const employeeData = res?.data?.employee_data;
+
+                Cookies.set('user_id', res?.data?.employee_data?.employee_id, { expires: 7 });
+                localStorage.setItem('employee_data', JSON.stringify(employeeData));
+                navigate("/home");
+            } else {
+                setError("Login failed. Please check your internet connection.");
+            }
 
         } catch (error) {
             if (error.response?.status === 401) {

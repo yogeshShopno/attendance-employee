@@ -1,12 +1,15 @@
 // src/components/Navbar.jsx
 import { useState, useRef, useEffect } from 'react';
-import { Bell, ChevronDown, User, LogOut, Settings } from 'lucide-react';
-import { useDispatch } from 'react-redux';
-import { clearPermissions } from '../redux/permissionsSlice';
+import { Bell, ChevronDown, User, LogOut, Settings, Slice } from 'lucide-react';
+import { useNavigate } from "react-router-dom";
+import Cookies from 'js-cookie';
+
 const Navbar = () => {
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const dropdownRef = useRef(null);
-    const dispatch = useDispatch();
+    const navigate = useNavigate();
+
+    const employee = JSON.parse(localStorage.getItem('employee_data'));
 
     // Close dropdown on outside click
     useEffect(() => {
@@ -21,17 +24,9 @@ const Navbar = () => {
 
     // Handle logout with confirmation
     const handleLogout = () => {
-        if (window.confirm('Are you sure you want to logout?')) {
-            dispatch(clearPermissions());
+        Cookies.remove('user_id');
+        navigate("/");
 
-        }
-        setIsDropdownOpen(false);
-    };
-
-    // Get user initials for avatar
-    const getUserInitials = (name) => {
-        if (!name || name === 'Unknown User') return 'U';
-        return name.split(' ').map(word => word[0]).join('').toUpperCase().slice(0, 2);
     };
 
     return (
@@ -58,7 +53,8 @@ const Navbar = () => {
                     >
                         {/* User Avatar */}
                         <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white text-sm font-semibold">
-                      J
+                            {employee?.full_name?.charAt(0).toUpperCase() || ""}
+
                         </div>
 
                         {/* User Name */}
@@ -72,7 +68,45 @@ const Navbar = () => {
                         />
                     </button>
 
-             
+                    {/* Dropdown Menu */}
+                    {isDropdownOpen && (
+                        <div className="absolute right-0 top-12 bg-white border border-gray-200 rounded-lg shadow-lg w-80 overflow-hidden">
+                            {/* User Info Header */}
+                            <div className="px-4 py-3 bg-gray-50 border-b">
+                                <div className="flex items-center space-x-3">
+                                    <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-semibold">
+                                        {employee?.full_name?.charAt(0).toUpperCase() || ""}
+
+                                    </div>
+                                    <div>
+                                        <h3 className="font-semibold text-gray-800">
+                                            {employee?.full_name || ""}
+                                        </h3>
+                                        <p className="text-sm text-gray-600">
+                                            {employee?.number || ""}                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+
+
+
+                            {/* Menu Actions */}
+                            <div className="py-2">
+                                <button className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100 flex items-center space-x-2">
+                                    <Settings size={16} />
+                                    <span>Settings</span>
+                                </button>
+
+                                <button
+                                    onClick={handleLogout}
+                                    className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-red-50 flex items-center space-x-2"
+                                >
+                                    <LogOut size={16} />
+                                    <span>Logout</span>
+                                </button>
+                            </div>
+                        </div>
+                    )}
                 </div>
             </div>
         </div>
