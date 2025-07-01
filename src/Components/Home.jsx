@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Clock, LogOut, Calendar, User, Activity, Timer } from 'lucide-react';
 import api from '../api/axiosInstance';
 import Cookies from 'js-cookie';
+import { Toast } from './Toast';
 
 const Home = () => {
 
@@ -13,13 +14,20 @@ const Home = () => {
   const [isLoadingStatus, setIsLoadingStatus] = useState(true);
   const userId = Cookies.get('user_id');
   const employeeId = Cookies.get('employee_id');
+  const [toast, setToast] = useState(null);
 
   // Fetch current status and attendance data on component mount
   useEffect(() => {
     fetchCurrentStatus();
     fetchAttendanceData();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // Toast helper functions
+  const showToast = (message, type = 'info') => {
+    setToast({ message, type });
+  };
+
 
   const fetchCurrentStatus = async () => {
     setIsLoadingStatus(true);
@@ -45,7 +53,7 @@ const Home = () => {
     } finally {
       setIsLoadingStatus(false);
     }
-    
+
   };
 
   const fetchAttendanceData = async () => {
@@ -87,10 +95,20 @@ const Home = () => {
         headers: { "Content-Type": "multipart/form-data" },
       });
 
-      // Refresh both status and attendance data after successful clock in/out
-      await Promise.all([fetchCurrentStatus(), fetchAttendanceData()]);
+      if (res.data && res.data.success) {
+        // Refresh both status and attendance data after successful clock in/out
+        showToast(res.data.message, "success");
+
+        await Promise.all([fetchCurrentStatus(), fetchAttendanceData()]);
+
+
+      } else {
+        showToast(res.data.message, "error");
+
+      }
 
     } catch (error) {
+      console.log(error)
       setError("Clock in/out failed. Try again.");
       console.error("Clock in/out error:", error);
     } finally {
@@ -159,7 +177,14 @@ const Home = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-    
+      {/* Toast Notification */}
+      {toast && (
+        <Toast
+          message={toast.message}
+          type={toast.type}
+          onClose={() => setToast(null)}
+        />
+      )}
       <div className="max-w-7xl mx-auto px-6 py-8">
         {/* Status Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
