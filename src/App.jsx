@@ -3,6 +3,7 @@ import Navbar from './Components/Navbar';
 import Sidebar from './Components/Sidebar';
 import Login from "./Components/Login";
 import Home from './Components/Home';
+import LeaveApplication from './pages/leaveapplication';
 
 
 
@@ -24,6 +25,7 @@ const App = () => {
           <Routes>
             <Route path="/" element={<Login />} />
             <Route path="/home" element={<Home />} />
+            <Route path="/applyLeave" element={<LeaveApplication />} />
           </Routes>
         </main>
       </div>

@@ -1,11 +1,12 @@
 import axios from 'axios';
 
 const api = axios.create({
-    baseURL: 'https://attendance.2-min.in/api/',
+    baseURL: 'https://attendance.2-min.in',
     timeout: 10000,
     // headers: {
     //     'Content-Type': 'application/json'
     // }
+
 });
 
 // Request interceptor to add basic auth
