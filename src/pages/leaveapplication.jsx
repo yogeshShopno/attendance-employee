@@ -2,9 +2,11 @@ import React, { useState, useEffect } from 'react';
 import api from '../api/axiosInstance';
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-import Cookies from 'js-cookie';
+import { useAuth } from '../context/AuthContext'; // Import useAuth hook
 
 const LeaveApplication = () => {
+    const { user, getEmployeeData, isAuthenticated } = useAuth(); // Use AuthContext
+
     const [formData, setFormData] = useState({
         user_id: '',
         employee_id: '',
@@ -19,23 +21,23 @@ const LeaveApplication = () => {
     const [isLoadingData, setIsLoadingData] = useState(true);
     const [notification, setNotification] = useState({ show: false, type: '', message: '' });
 
-    // Set user_id and employee_id from cookies and localStorage
+    // Set user_id and employee_id from AuthContext
     useEffect(() => {
-        const userId = Cookies.get('user_id');
-        const employeeId = Cookies.get('employee_id');
+        if (user && isAuthenticated()) {
+            const employeeData = getEmployeeData();
 
-        if (userId && employeeId) {
             setFormData(prev => ({
                 ...prev,
-                user_id: userId,
-                employee_id: employeeId
+                user_id: user.user_id || user.id || '',
+                employee_id: user.employee_id || employeeData?.employee_id || ''
             }));
         }
-    }, []);
+    }, [user, isAuthenticated, getEmployeeData]);
 
     // Fetch leave types on component mount
     useEffect(() => {
-        fetchLeaveTypes();
+            fetchLeaveTypes();
+        
     }, []);
 
     const fetchLeaveTypes = async () => {
@@ -89,6 +91,15 @@ const LeaveApplication = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
 
+        if (!isAuthenticated()) {
+            setNotification({
+                show: true,
+                type: 'error',
+                message: 'Please login to submit leave request.'
+            });
+            return;
+        }
+
         if (!formData.employee_id) {
             setNotification({
                 show: true,
@@ -119,8 +130,8 @@ const LeaveApplication = () => {
 
             // Reset form
             setFormData({
-                user_id: Cookies.get('user_id') || '',
-                employee_id: Cookies.get('employee_id') || '',
+                user_id: user?.user_id || user?.id || '',
+                employee_id: user?.employee_id || getEmployeeData()?.employee_id || '',
                 leave_type: '',
                 start_date: '',
                 end_date: '',
@@ -143,8 +154,8 @@ const LeaveApplication = () => {
 
     const resetForm = () => {
         setFormData({
-            user_id: Cookies.get('user_id') || '',
-            employee_id: Cookies.get('employee_id') || '',
+            user_id: user?.user_id || user?.id || '',
+            employee_id: user?.employee_id || getEmployeeData()?.employee_id || '',
             leave_type: '',
             start_date: '',
             end_date: '',
@@ -155,6 +166,22 @@ const LeaveApplication = () => {
     // Get today's date at midnight for comparison
     const today = new Date();
     today.setHours(0, 0, 0, 0);
+
+    // Show authentication error if user is not authenticated
+    if (!isAuthenticated()) {
+        return (
+            <div className="max-w-2xl mx-auto px-4 py-8 w-full">
+                <div className="bg-white shadow-lg rounded-lg overflow-hidden">
+                    <div className="bg-red-600 py-4 px-6">
+                        <h2 className="text-xl font-bold text-white">Authentication Required</h2>
+                    </div>
+                    <div className="p-6 text-center">
+                        <p className="text-gray-600">Please log in to access the leave application form.</p>
+                    </div>
+                </div>
+            </div>
+        );
+    }
 
     if (isLoadingData) {
         return (
@@ -196,12 +223,12 @@ const LeaveApplication = () => {
                         </label>
                         <div className="px-3 py-2 bg-gray-50 border border-gray-200 rounded-md text-gray-700">
                             {(() => {
-                                try {
-                                    const employeeData = JSON.parse(localStorage.getItem('employee_data') || '{}');
-                                    return employeeData.full_name || employeeData.name || 'Current User';
-                                } catch (error) {
-                                    return 'Current User' (error);
-                                }
+                                const employeeData = getEmployeeData();
+                                return employeeData?.full_name ||
+                                    employeeData?.name ||
+                                    user?.full_name ||
+                                    user?.name ||
+                                    'Current User';
                             })()}
                         </div>
                     </div>

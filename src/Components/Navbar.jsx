@@ -1,15 +1,19 @@
-// src/components/Navbar.jsx
 import { useState, useRef, useEffect } from 'react';
-import { Bell, ChevronDown, User, LogOut, Settings, Slice } from 'lucide-react';
+import { Bell, ChevronDown, User, LogOut, Settings } from 'lucide-react';
 import { useNavigate } from "react-router-dom";
-import Cookies from 'js-cookie';
+import { useAuth } from '../context/AuthContext';
 
 const Navbar = () => {
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const dropdownRef = useRef(null);
     const navigate = useNavigate();
 
-    const employee = JSON.parse(localStorage.getItem('employee_data'));
+    const { user, logout, isAuthenticated } = useAuth();
+
+    // Extract user data from employee_data structure
+    const employee = user?.employee_data || user;
+    const userName = employee?.full_name || employee?.name || 'User';
+    const userPhone = employee?.number || employee?.phone || '';
 
     // Close dropdown on outside click
     useEffect(() => {
@@ -22,14 +26,22 @@ const Navbar = () => {
         return () => document.removeEventListener('mousedown', handleClickOutside);
     }, []);
 
-    // Handle logout with confirmation
-    const handleLogout = () => {
-        Cookies.remove('user_id');
-        Cookies.remove('employee_id');
-
-        navigate("/");
-
+    // Handle logout
+    const handleLogout = async () => {
+        try {
+            await logout();
+            navigate("/");
+        } catch (error) {
+            console.error('Logout error:', error);
+            // Force navigation even if logout fails
+            navigate("/");
+        }
     };
+
+    // Don't render navbar if user is not authenticated
+    if (!isAuthenticated()) {
+        return null;
+    }
 
     return (
         <div className="fixed top-0 left-0 right-0 flex items-center justify-between w-full h-16 px-6 bg-white border-b border-gray-200 z-50 shadow-sm">
@@ -55,13 +67,12 @@ const Navbar = () => {
                     >
                         {/* User Avatar */}
                         <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white text-sm font-semibold">
-                            {employee?.full_name?.charAt(0).toUpperCase() || ""}
-
+                            {userName.charAt(0).toUpperCase()}
                         </div>
 
                         {/* User Name */}
                         <span className="text-gray-700 font-medium hidden sm:inline-block max-w-32 truncate">
-                                                        {employee?.full_name || ""}
+                            {userName}
                         </span>
 
                         {/* Dropdown Arrow */}
@@ -78,20 +89,18 @@ const Navbar = () => {
                             <div className="px-4 py-3 bg-gray-50 border-b">
                                 <div className="flex items-center space-x-3">
                                     <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-semibold">
-                                        {employee?.full_name?.charAt(0).toUpperCase() || ""}
-
+                                        {userName.charAt(0).toUpperCase()}
                                     </div>
                                     <div>
                                         <h3 className="font-semibold text-gray-800">
-                                            {employee?.full_name || ""}
+                                            {userName}
                                         </h3>
                                         <p className="text-sm text-gray-600">
-                                            {employee?.number || ""}                                        </p>
+                                            {userPhone}
+                                        </p>
                                     </div>
                                 </div>
                             </div>
-
-
 
                             {/* Menu Actions */}
                             <div className="py-2">

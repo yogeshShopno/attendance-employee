@@ -2,20 +2,26 @@
 import { useState } from "react";
 import { Mail, Lock, Eye, EyeOff } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import Cookies from 'js-cookie';
-
-// import axios from "axios";
+import { useAuth } from '../context/AuthContext';
+import { Toast } from './Toast';
 import api from '../api/axiosInstance';
 
-// import redux from;
 const Login = () => {
     const [number, setNumber] = useState("7412589633");
     const [password, setPassword] = useState("123456");
     const [showPassword, setShowPassword] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState("");
-    const navigate = useNavigate();
+    const [toast, setToast] = useState(null);
 
+    const navigate = useNavigate();
+    const { login } = useAuth();
+
+    // Toast helper function
+    const showToast = (message, type = 'info') => {
+        setToast({ message, type });
+        setTimeout(() => setToast(null), 5000);
+    };
 
     const handleLogin = async (e) => {
         e.preventDefault();
@@ -37,28 +43,53 @@ const Login = () => {
                 headers: {
                     "Content-Type": "multipart/form-data"
                 }
-
             });
-            if (res?.data?.status !== "success") {
-                const employeeData = res?.data?.employee_data;
 
-                Cookies.set('user_id', res?.data?.employee_data?.user_id, { expires: 7 });
-                Cookies.set('employee_id', res?.data?.employee_data?.employee_id, { expires: 7 });
+            console.log("Login response:", res.data); // Debug log
 
-                localStorage.setItem('employee_data', JSON.stringify(employeeData));
-                navigate("/home");
+            // Fixed: Check for success property instead of status
+            if (res?.data?.success === true && res?.data?.employee_data) {
+                // Show success toast
+                showToast("Login successful! Redirecting...", "success");
+
+                // Pass the response data directly to login function
+                const loginSuccess = login(res.data);
+
+                if (loginSuccess) {
+                    // Small delay to show success message before navigation
+                    setTimeout(() => {
+                        navigate("/home");
+                    }, 1500);
+                } else {
+                    showToast("Failed to process login. Please try again.", "error");
+                }
             } else {
-                setError("Login failed. Please check your internet connection.");
+                // Handle various error scenarios
+                const errorMessage = res?.data?.message || "Login failed. Please check your credentials.";
+                showToast(errorMessage, "error");
+                setError(errorMessage);
             }
 
         } catch (error) {
+            console.error("Login error:", error);
+
+            let errorMessage = "Login failed. Please try again.";
+
+            // Handle different error types
             if (error.response?.status === 401) {
-                setError("Invalid credentials. Please try again.");
+                errorMessage = "Invalid credentials. Please try again.";
+            } else if (error.response?.status === 422) {
+                errorMessage = "Invalid input. Please check your phone number and password.";
             } else if (error.response?.status >= 500) {
-                setError("Server error. Please try again later.");
-            } else {
-                setError("Login failed. Please check your internet connection.");
+                errorMessage = "Server error. Please try again later.";
+            } else if (error.code === 'NETWORK_ERROR') {
+                errorMessage = "Network error. Please check your internet connection.";
+            } else if (error.response?.data?.message) {
+                errorMessage = error.response.data.message;
             }
+
+            showToast(errorMessage, "error");
+            setError(errorMessage);
         } finally {
             setIsLoading(false);
         }
@@ -66,6 +97,15 @@ const Login = () => {
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 flex items-center justify-center p-4">
+            {/* Toast Notification */}
+            {toast && (
+                <Toast
+                    message={toast.message}
+                    type={toast.type}
+                    onClose={() => setToast(null)}
+                />
+            )}
+
             <div className="w-full max-w-md">
                 {/* Main Card */}
                 <div className="bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden">
@@ -89,6 +129,7 @@ const Login = () => {
 
                         {/* Login Form */}
                         <form onSubmit={handleLogin} className="space-y-6">
+                            {/* Phone Number Input */}
                             <div>
                                 <label className="block text-sm font-semibold text-slate-700 mb-2">
                                     Phone Number
@@ -102,6 +143,7 @@ const Login = () => {
                                         value={number}
                                         onChange={(e) => setNumber(e.target.value)}
                                         disabled={isLoading}
+                                        required
                                     />
                                 </div>
                             </div>
@@ -120,6 +162,7 @@ const Login = () => {
                                         value={password}
                                         onChange={(e) => setPassword(e.target.value)}
                                         disabled={isLoading}
+                                        required
                                     />
                                     <button
                                         type="button"
@@ -137,6 +180,9 @@ const Login = () => {
                                 <button
                                     type="button"
                                     className="text-sm text-slate-600 hover:text-slate-800 font-medium transition-colors duration-200"
+                                    onClick={() => {
+                                        showToast("Forgot password functionality not implemented yet.", "info");
+                                    }}
                                 >
                                     Forgot your password?
                                 </button>
@@ -158,6 +204,22 @@ const Login = () => {
                                 )}
                             </button>
                         </form>
+
+                        {/* Additional Info */}
+                        <div className="mt-6 text-center">
+                            <p className="text-sm text-slate-500">
+                                Don't have an account?{" "}
+                                <button
+                                    type="button"
+                                    className="text-slate-600 hover:text-slate-800 font-medium"
+                                    onClick={() => {
+                                        showToast("Registration functionality not implemented yet.", "info");
+                                    }}
+                                >
+                                    Contact administrator
+                                </button>
+                            </p>
+                        </div>
                     </div>
                 </div>
             </div>
