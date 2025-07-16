@@ -132,7 +132,6 @@ const Home = () => {
     };
   };
 
-  // eslint-disable-next-line no-unused-vars
   const { date: currentDate, time: currentTime } = getCurrentDateTime();
 
   const getStatusInfo = () => {

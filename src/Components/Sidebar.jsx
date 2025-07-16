@@ -30,12 +30,6 @@ const Sidebar = () => {
             icon: Home,
             path: '/home',
         },
-        {
-            id: 'leave',
-            label: 'Apply For Leave',
-            icon: Calendar,
-            path: '/applyLeave',
-        },
 
         {
             id: 'employees',
@@ -43,7 +37,7 @@ const Sidebar = () => {
             icon: Users,
             hasSubmenu: true,
             path: '/employee',
-
+   
         },
 
         // {
@@ -55,7 +49,7 @@ const Sidebar = () => {
         //     submenu: [
         //         { label: 'Leave Application', path: '/leaveapplication' },
         //         { label: 'Leave Requests', path: '/leavestatusPage' },
-
+       
         //     ]
         // },
 
