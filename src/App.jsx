@@ -2,7 +2,7 @@ import { Route, Routes, useLocation, } from 'react-router-dom';
 import Navbar from './Components/Navbar';
 import Sidebar from './Components/Sidebar';
 import Login from "./Components/Login";
-import Home from './Components/Home';
+import AttendanceDashboard from './Components/AttendanceDashboard';
 import EmployeeProfile from './pages/EmployeeProfile';
 import Attendance from './pages/Attendance';
 import LeaveApplication from './pages/leaveapplication';
@@ -21,7 +21,7 @@ const App = () => {
         <main className="flex-1 overflow-y-auto">
           <Routes>
             <Route path="/" element={<Login />} />
-            <Route path="/home" element={<Home />} />
+            <Route path="/dashboard" element={<AttendanceDashboard />} />
             <Route path="/attendance" element={<Attendance />} />
             <Route path="/employee" element={<EmployeeProfile />} />
             <Route path="/leave-application" element={<LeaveApplication />} />

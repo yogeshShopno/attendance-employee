@@ -28,7 +28,7 @@ const Sidebar = () => {
             id: 'dashboard',
             label: 'Dashboard',
             icon: Home,
-            path: '/home',
+            path: '/dashboard',
         },
 
         {

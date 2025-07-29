@@ -58,7 +58,7 @@ const Login = () => {
                 if (loginSuccess) {
                     // Small delay to show success message before navigation
                     setTimeout(() => {
-                        navigate("/home");
+                        navigate("/dashboard");
                     }, 1500);
                 } else {
                     showToast("Failed to process login. Please try again.", "error");

@@ -5,7 +5,6 @@ import { Toast } from '../Components/Toast';
 import { useAuth } from '../context/AuthContext'; // Import the auth context
 
 const Attendance = () => {
-    const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState("");
     const [attendanceData, setAttendanceData] = useState([]);
     const [isLoadingAttendance, setIsLoadingAttendance] = useState(true);
@@ -29,10 +28,6 @@ const Attendance = () => {
         }
     }, [userId, employeeId, authLoading]); // Dependencies updated to include auth state
 
-    // Toast helper functions
-    const showToast = (message, type = 'info') => {
-        setToast({ message, type });
-    };
 
     const fetchCurrentStatus = async () => {
         if (!userId || !employeeId) {
@@ -100,41 +95,6 @@ const Attendance = () => {
         }
     };
 
-    const handleClockInOut = async (e) => {
-        e.preventDefault();
-
-        if (!userId || !employeeId) {
-            showToast("Missing user credentials. Please log in again.", "error");
-            return;
-        }
-
-        setIsLoading(true);
-        setError("");
-
-        const formData = new FormData();
-        formData.append("user_id", userId);
-        formData.append("employee_id", employeeId);
-
-        try {
-            const res = await api.post("emp_clock_in_and_clock_out", formData, {
-                headers: { "Content-Type": "multipart/form-data" },
-            });
-
-            if (res.data && res.data.success) {
-                // Refresh both status and attendance data after successful clock in/out
-                showToast(res.data.message, "success");
-                await Promise.all([fetchCurrentStatus(), fetchAttendanceData()]);
-            } else {
-                showToast(res.data.message || "Clock in/out failed", "error");
-            }
-        } catch (error) {
-            console.error("Clock in/out error:", error);
-            setError("Clock in/out failed. Try again.");
-            showToast("Clock in/out failed. Try again.", "error");
-        } finally {
-            setIsLoading(false);
-        }
-    };
 
     const getCurrentDateTime = () => {
         const now = new Date();
@@ -273,62 +233,8 @@ const Attendance = () => {
                                 {statusInfo.text}
                             </div>
                         </div>
-
-                        <button
-                            onClick={handleClockInOut}
-                            disabled={isLoading || isLoadingStatus}
-                            className={`w-full ${statusInfo.buttonColor} disabled:opacity-50 disabled:cursor-not-allowed text-white px-4 py-3 rounded-lg font-semibold transition-all duration-200 flex items-center justify-center space-x-2 shadow-sm hover:shadow-md`}
-                        >
-                            <Clock className="h-4 w-4" />
-                            <span>{isLoading ? "Processing..." : statusInfo.buttonText}</span>
-                        </button>
                     </div>
 
-                    {/* Time Tracking Card */}
-                    <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
-                        <div className="flex items-center space-x-3 mb-4">
-                            <div className="p-2 bg-purple-100 rounded-lg">
-                                <Timer className="h-5 w-5 text-purple-600" />
-                            </div>
-                            <div>
-                                <h3 className="text-gray-900 font-semibold">Time Tracking</h3>
-                                <p className="text-gray-500 text-sm">Today's Progress</p>
-                            </div>
-                        </div>
-                        <div className="space-y-2">
-                            <div className="flex justify-between text-sm">
-                                <span className="text-gray-500">Target End Time</span>
-                                <span className="text-gray-900 font-medium">6:30 PM</span>
-                            </div>
-                            <div className="flex justify-between text-sm">
-                                <span className="text-gray-500">Time Remaining</span>
-                                <span className="text-purple-600 font-medium">7 hrs 26 min</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Quick Stats Card */}
-                    <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
-                        <div className="flex items-center space-x-3 mb-4">
-                            <div className="p-2 bg-emerald-100 rounded-lg">
-                                <Calendar className="h-5 w-5 text-emerald-600" />
-                            </div>
-                            <div>
-                                <h3 className="text-gray-900 font-semibold">This Month</h3>
-                                <p className="text-gray-500 text-sm">Attendance Summary</p>
-                            </div>
-                        </div>
-                        <div className="space-y-2">
-                            <div className="flex justify-between text-sm">
-                                <span className="text-gray-500">Total Records</span>
-                                <span className="text-gray-900 font-medium">{attendanceData.length}</span>
-                            </div>
-                            <div className="flex justify-between text-sm">
-                                <span className="text-gray-500">This Week</span>
-                                <span className="text-emerald-600 font-medium">5 days</span>
-                            </div>
-                        </div>
-                    </div>
                 </div>
 
                 {/* Error Display */}
