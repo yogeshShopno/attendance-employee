@@ -8,6 +8,12 @@
   </head>
   <body>
     <div id="root"></div>
-    <script type="module" src="/src/main.jsx"></script>
+    <script type="module" src="/src/main.jsx">
+         if (import.meta.env.PROD) {
+        for (const method of ['log', 'warn', 'error', 'info', 'debug']) {
+          console[method] = () => {};
+        }
+      }
+    </script>
   </body>
 </html>
