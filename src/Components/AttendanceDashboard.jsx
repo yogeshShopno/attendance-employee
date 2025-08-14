@@ -339,95 +339,6 @@ const AttendanceDashboard = () => {
       )}
       <div className="max-w-7xl mx-auto">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-          {/* Left Column - Attendance Tracker */}
-          <div className="lg:col-span-4">
-            <div className="bg-white rounded-2xl shadow-xl p-8 border border-gray-100">
-              <div className="text-center mb-8">
-                <div className={`inline-flex items-center px-4 py-2 rounded-full text-sm font-medium ${statusInfo.statusBg} ${statusInfo.statusColor} mb-4`}>
-                  <div className={`w-2 h-2 rounded-full mr-2 ${currentStatus === 2 ? 'bg-green-500' : 'bg-red-500'} animate-pulse`}></div>
-                  {statusInfo.text}
-                </div>
-                <h2 className="text-2xl font-bold text-gray-900 mb-2">Today's Progress</h2>
-                <p className="text-gray-600">Keep track of your working hours</p>
-              </div>
-
-              {/* Circular Progress */}
-              <div className="relative w-56 h-56 mx-auto mb-8">
-                <svg className="w-56 h-56 transform -rotate-90" viewBox="0 0 120 120">
-                  <defs>
-                    <linearGradient id="progressGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                      <stop offset="0%" stopColor="#3b82f6" />
-                      <stop offset="100%" stopColor="#1d4ed8" />
-                    </linearGradient>
-                  </defs>
-                  <circle
-                    cx="60"
-                    cy="60"
-                    r="50"
-                    stroke="#e5e7eb"
-                    strokeWidth="6"
-                    fill="none"
-                    className="drop-shadow-sm"
-                  />
-                  <circle
-                    cx="60"
-                    cy="60"
-                    r="50"
-                    stroke="url(#progressGradient)"
-                    strokeWidth="6"
-                    fill="none"
-                    strokeDasharray={`${(workingProgress / 100) * 314} 314`}
-                    strokeLinecap="round"
-                    className="drop-shadow-lg transition-all duration-1000 ease-out"
-                  />
-                </svg>
-                <div className="absolute inset-0 flex flex-col items-center justify-center">
-                  <div className="text-4xl font-bold text-gray-900 mb-1">{formatTime(workingTime)}</div>
-                  <div className="text-sm text-gray-500 font-medium">Working Hours</div>
-                </div>
-              </div>
-
-              {/* Timer Controls */}
-              <div className="bg-gradient-to-r from-gray-900 to-gray-800 rounded-xl p-6 mb-6 shadow-lg">
-                <div className="flex items-center justify-between text-white">
-                  <div className="flex items-center space-x-3">
-                    <div className="bg-white/20 rounded-lg p-2">
-                      <Clock size={20} />
-                    </div>
-                    <div>
-                      <div className="text-sm font-medium text-gray-300">Current Time</div>
-                      <div className="text-xl font-mono font-bold">{formatCurrentTime()}</div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Error Display */}
-              {error && (
-                <div className="bg-red-50 border border-red-200 rounded-xl p-4 mb-6">
-                  <p className="text-red-600 text-sm">{error}</p>
-                </div>
-              )}
-
-              {/* Punch In/Out Button */}
-              <button
-                onClick={handleClockInOut}
-                disabled={isLoading || isLoadingStatus}
-                className={`w-full py-4 rounded-xl font-semibold text-white ${statusInfo.buttonColor} 
-                  disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 transform hover:scale-105 hover:shadow-xl text-lg`}
-              >
-                {isLoading ? (
-                  <div className="flex items-center justify-center">
-                    <Clock className="animate-spin mr-2" size={20} />
-                    Processing...
-                  </div>
-                ) : (
-                  statusInfo.buttonText
-                )}
-              </button>
-            </div>
-          </div>
-
           {/* Middle Column - Welcome & Analytics */}
           <div className="lg:col-span-5 space-y-6">
             {/* Welcome Card */}
@@ -528,7 +439,7 @@ const AttendanceDashboard = () => {
               </div>
 
               <div className="grid grid-cols-7 gap-1 mb-3">
-                {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map(day => (
+                {['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'].map(day => (
                   <div key={day} className="text-xs text-gray-500 text-center p-2 font-semibold">
                     {day}
                   </div>
@@ -550,63 +461,6 @@ const AttendanceDashboard = () => {
                 </div>
               </div>
             </div>
-
-            {/* Leave Balance */}
-            <div className="bg-white rounded-2xl shadow-xl p-6 border border-gray-100">
-              <div className="flex items-center justify-between mb-6">
-                <h3 className="text-xl font-bold text-gray-900">Leave Balance</h3>
-                <BarChart3 size={20} className="text-gray-500" />
-              </div>
-
-              <div className="text-center mb-6">
-                <div className="w-24 h-24 mx-auto relative mb-4">
-                  <svg className="w-24 h-24 transform -rotate-90" viewBox="0 0 100 100">
-                    <defs>
-                      <linearGradient id="leaveGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                        <stop offset="0%" stopColor="#f59e0b" />
-                        <stop offset="100%" stopColor="#d97706" />
-                      </linearGradient>
-                    </defs>
-                    <circle
-                      cx="50"
-                      cy="50"
-                      r="40"
-                      stroke="url(#leaveGradient)"
-                      strokeWidth="8"
-                      fill="none"
-                      strokeDasharray={`${(15 / 25) * 251} 251`}
-                      strokeLinecap="round"
-                      className="transition-all duration-1000 ease-out"
-                    />
-                  </svg>
-                  <div className="absolute inset-0 flex flex-col items-center justify-center">
-                    <div className="text-2xl font-bold text-gray-900">15</div>
-                    <div className="text-xs text-gray-500">days left</div>
-                  </div>
-                </div>
-                <div className="text-sm text-gray-600 mb-4">Annual Leave Balance</div>
-              </div>
-
-              <div className="space-y-3">
-                <div className="flex items-center justify-between py-2">
-                  <span className="text-sm text-gray-600">Annual Leave</span>
-                  <span className="text-sm font-semibold text-gray-900">15/25 days</span>
-                </div>
-                <div className="flex items-center justify-between py-2">
-                  <span className="text-sm text-gray-600">Sick Leave</span>
-                  <span className="text-sm font-semibold text-gray-900">8/12 days</span>
-                </div>
-                <div className="flex items-center justify-between py-2">
-                  <span className="text-sm text-gray-600">Personal Leave</span>
-                  <span className="text-sm font-semibold text-gray-900">3/5 days</span>
-                </div>
-              </div>
-
-              <button onClick={() => navigate("/leave-application")} className="w-full mt-4 bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-white py-3 rounded-xl font-semibold transition-all duration-300 transform hover:scale-105">
-                Request Leave
-              </button>
-            </div>
-
           </div>
         </div>
       </div>

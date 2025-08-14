@@ -1,97 +1,47 @@
-import { useState } from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { useState, useEffect, useCallback } from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
     Home,
     Users,
     Clock,
     Calendar,
-    CheckSquare,
-    DollarSign,
-    Briefcase,
-    BarChart2,
-    FileText,
-    User,
-    Settings,
-    Phone,
     ChevronRight,
-    Star
-} from 'lucide-react';
+    ChevronLeft,
+    Star,
+} from "lucide-react";
 
-const Sidebar = () => {
+// Debounce utility to optimize resize performance
+const debounce = (fn, delay) => {
+    let timer;
+    return (...args) => {
+        clearTimeout(timer);
+        timer = setTimeout(() => fn(...args), delay);
+    };
+};
+
+const Sidebar = ({ isCollapsed, setIsCollapsed }) => {
+    const [isMobile, setIsMobile] = useState(window.innerWidth < 1024);
     const location = useLocation();
     const currentPath = location.pathname;
-    const [expandedSubmenu, setExpandedSubmenu] = useState(null);
     const navigate = useNavigate();
 
+    const [expandedSubmenu, setExpandedSubmenu] = useState(null);
+    const [lastActiveItem, setLastActiveItem] = useState("dashboard");
+
+    // Menu configuration
     const menuItems = [
+        { id: "dashboard", label: "Dashboard", icon: Home, path: "/dashboard" },
+        { id: "attendance", label: "Attendance", icon: Clock, path: "/attendance" },
         {
-            id: 'dashboard',
-            label: 'Dashboard',
-            icon: Home,
-            path: '/dashboard',
+            id: "leave",
+            label: "Apply Leave",
+            icon: Calendar,
+            path: "/leave-application",
         },
-
-        {
-            id: 'attendance',
-            label: 'Attendance',
-            icon: Users,
-            hasSubmenu: false,
-            path: '/attendance',
-        },
-        {
-            id: 'leave',
-            label: 'Apply Leave',
-            icon: Users,
-            hasSubmenu: false,
-            path: '/leave-application',
-        },
-        {
-            id: 'employees',
-            label: 'Employees',
-            icon: Users,
-            hasSubmenu: false,
-            path: '/employee',
-
-        },
-
-        // {
-        //     id: 'leaves',
-        //     label: 'Leaves & Holidays',
-        //     icon: Calendar,
-        //     hasSubmenu: true,
-        //     path: '/leaveapplication',
-        //     submenu: [
-        //         { label: 'Leave Application', path: '/leaveapplication' },
-        //         { label: 'Leave Requests', path: '/leavestatusPage' },
-
-        //     ]
-        // },
-
-
-        // {
-        //     id: 'payroll',
-        //     label: 'Payroll Pending',
-        //     icon: DollarSign,
-        //     hasSubmenu: true,
-        //     path: '/bulk-attendance',
-        //     tag: 'New',
-        //     submenu: [
-        //         { label: 'Bulk Attendance', path: '/bulk-attendance' },
-        //         { label: 'Monthly Payroll', path: '/monthly-payroll' },
-        //         { label: 'Hourly Payroll', path: '/Hourly-payroll' },
-        //         { label: 'Finalize Payroll', path: '/Finalize-payroll' },
-        //     ]
-        // },
-
-        // {
-        //     id: 'loans',
-        //     label: 'Loans & Advances working',
-        //     icon: Briefcase,
-        //     path: '/loans',
-        // },
-
+        { id: "employees", label: "Employees", icon: Users, path: "/employee" },
     ];
 
+    // Determine current active item
     const getActiveItemId = () => {
         for (const item of menuItems) {
             if (item.path && currentPath === item.path) return item.id;
@@ -101,7 +51,7 @@ const Sidebar = () => {
                 }
             }
         }
-        return 'dashboard'; // default fallback
+        return null;
     };
 
     const getActiveSubmenuPath = () => {
@@ -115,265 +65,218 @@ const Sidebar = () => {
         return null;
     };
 
-    const activeItem = getActiveItemId();
+    const hasActualSubmenu = (item) =>
+        item.hasSubmenu && Array.isArray(item.submenu) && item.submenu.length > 0;
+
+    const getExpandedMenuId = () => {
+        for (const item of menuItems) {
+            if (hasActualSubmenu(item)) {
+                if (item.submenu.some((sub) => currentPath === sub.path)) {
+                    return item.id;
+                }
+            }
+        }
+        return null;
+    };
+
+    const currentActiveItem = getActiveItemId();
     const activeSubmenuPath = getActiveSubmenuPath();
+    const shouldExpandMenuId = getExpandedMenuId();
+    const activeItem = currentActiveItem || lastActiveItem;
+
+    // Resize listener
+    const handleResize = useCallback(
+        debounce(() => {
+            const mobile = window.innerWidth < 1024;
+            setIsMobile(mobile);
+            if (mobile) {
+                setIsCollapsed(true);
+            }
+        }, 150),
+        [setIsCollapsed]
+    );
+
+    useEffect(() => {
+        window.addEventListener("resize", handleResize);
+        handleResize();
+        return () => window.removeEventListener("resize", handleResize);
+    }, [handleResize]);
+    
+    useEffect(() => {
+        if (currentActiveItem) {
+            setLastActiveItem(currentActiveItem);
+        }
+    }, [currentActiveItem]);
+
+    // Expand submenu if needed
+    useEffect(() => {
+        if (shouldExpandMenuId && !isCollapsed) {
+            setExpandedSubmenu(shouldExpandMenuId);
+        }
+    }, [shouldExpandMenuId, isCollapsed]);
+
+    // Close submenu when collapsing
+    useEffect(() => {
+        if (isCollapsed) {
+            setExpandedSubmenu(null);
+        }
+    }, [isCollapsed]);
 
     const handleMenuClick = (item) => {
-        // Check if item has actual submenu
-        const hasActualSubmenu = item.hasSubmenu && item.submenu && item.submenu.length > 0;
+        // Prevent clicks when collapsed on desktop (but allow on mobile)
+        if (isCollapsed && !isMobile) {
+            return;
+        }
 
-        if (hasActualSubmenu) {
+        if (hasActualSubmenu(item) && !isCollapsed) {
             setExpandedSubmenu(expandedSubmenu === item.id ? null : item.id);
-            // Navigate to main path if it exists
-            if (item.path) {
-                navigate(item.path);
-            }
+            if (item.path) navigate(item.path);
         } else if (item.path) {
-            // Navigate to path for items without submenu or with empty submenu
-            setExpandedSubmenu(null);
             navigate(item.path);
-        } else {
             setExpandedSubmenu(null);
+            if (isMobile) setIsCollapsed(true);
         }
     };
 
-    const getSubmenuHeight = (itemId) => {
-        const submenu = menuItems.find(item => item.id === itemId)?.submenu;
-        if (!submenu) return 0;
-        return submenu.length * 40 + 60; // 40px per item + padding
-    };
-
-    const hasActualSubmenu = (item) => {
-        return item.hasSubmenu && item.submenu && item.submenu.length > 0;
+    const getSidebarClasses = () => {
+        const base =
+            "fixed left-0 top-16 h-[calc(100vh-4rem)] bg-gradient-to-b from-[var(--color-bg-gradient-start)] to-[var(--color-bg-gradient-end)] border-r border-[var(--color-border-primary)] shadow-lg transition-all duration-300";
+        
+        if (isMobile) {
+            return isCollapsed
+                ? `${base} w-0 -translate-x-full z-30`
+                : `${base} w-72 translate-x-0 z-50`;
+        }
+        return isCollapsed
+            ? `${base} w-20 translate-x-0 z-30`
+            : `${base} w-64 translate-x-0 z-30`;
     };
 
     return (
         <>
-            <style>
-                {`
-                    .custom-scrollbar::-webkit-scrollbar {
-                        width: 6px;
-                    }
-                    
-                    .custom-scrollbar::-webkit-scrollbar-track {
-                        background: #f1f5f9;
-                        border-radius: 10px;
-                        margin: 8px 0;
-                    }
-                    
-                    .custom-scrollbar::-webkit-scrollbar-thumb {
-                        background: linear-gradient(45deg, #3b82f6, #6366f1);
-                        border-radius: 10px;
-                        transition: all 0.3s ease;
-                    }
-                    
-                    .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-                        background: linear-gradient(45deg, #2563eb, #4f46e5);
-                        width: 8px;
-                    }
+            {/* Mobile overlay */}
+            {!isCollapsed && isMobile && (
+                <div
+                    className="fixed inset-0 bg-black bg-opacity-50 z-40"
+                    onClick={() => setIsCollapsed(true)}
+                />
+            )}
 
-                    /* Firefox */
-                    .custom-scrollbar {
-                        scrollbar-width: thin;
-                        scrollbar-color: #3b82f6 #f1f5f9;
-                    }
-                    
-                    .scrollbar-fade-top {
-                        background: linear-gradient(180deg, rgba(248, 250, 252, 0.9) 0%, transparent 100%);
-                        pointer-events: none;
-                    }
-                    
-                    .scrollbar-fade-bottom {
-                        background: linear-gradient(0deg, rgba(248, 250, 252, 0.9) 0%, transparent 100%);
-                        pointer-events: none;
-                    }
-                `}
-            </style>
+            {/* Mobile toggle button */}
+            {isMobile && isCollapsed && (
+                <button
+                    onClick={() => setIsCollapsed(false)}
+                    className="fixed left-0 top-1/4 transform -translate-y-1/2 z-40 w-6 h-14 bg-gradient-to-b from-[var(--color-bg-gradient-start)] to-[var(--color-bg-gradient-end)] border-r border-t border-b border-[var(--color-border-primary)] rounded-tr-lg rounded-br-lg shadow-lg flex items-center justify-center text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]"
+                >
+                    <ChevronRight size={18} />
+                </button>
+            )}
 
-            <div className="fixed left-0 top-16 h-[calc(100vh-4rem)] bg-gradient-to-b from-slate-50 to-white border-r border-gray-200 shadow-lg transition-all duration-300 w-64 z-40">
-                {/* Scrollable Navigation Container */}
-                <div className="h-[calc(100%-140px)] relative">
-                    {/* Top fade overlay */}
-                    <div className="absolute top-0 left-0 right-0 h-4 z-10 scrollbar-fade-top"></div>
+            {/* Sidebar */}
+            <div className={getSidebarClasses()}>
+                {/* Desktop toggle button */}
+                {!isMobile && (
+                    <div className="absolute -right-7 top-1/2 transform -translate-y-1/2 z-10">
+                        <button
+                            onClick={() => setIsCollapsed(!isCollapsed)}
+                            className="w-7 h-20 flex items-center justify-center bg-gradient-to-b from-[var(--color-bg-gradient-start)] to-[var(--color-bg-gradient-end)] border-r border-t border-b border-[var(--color-border-primary)] text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] rounded-tr-[20px] rounded-br-[20px]"
+                        >
+                            {isCollapsed ? <ChevronRight size={16} /> : <ChevronLeft size={16} />}
+                        </button>
+                    </div>
+                )}
 
-                    {/* Scrollable content */}
-                    <div className="h-full overflow-y-auto custom-scrollbar py-4 px-3 pb-6">
-                        {menuItems.map((item) => {
-                            const Icon = item.icon;
-                            const isActive = activeItem === item.id;
-                            const isExpanded = expandedSubmenu === item.id;
-                            const hasSubmenu = hasActualSubmenu(item);
+                {/* Navigation */}
+                <div className={`h-full overflow-y-auto ${isCollapsed && !isMobile ? 'py-6 px-2' : 'py-4'} ${(!isCollapsed || !isMobile) ? 'px-3' : ''}`}>
+                    {menuItems.map((item) => {
+                        const Icon = item.icon;
+                        const isActive = activeItem === item.id;
+                        const isExpanded = expandedSubmenu === item.id;
+                        const hasSub = hasActualSubmenu(item);
 
-                            return (
-                                <div key={item.id} className="mb-1">
-                                    {hasSubmenu ? (
-                                        // Menu item with submenu
-                                        <div
-                                            className={`
-                                                relative cursor-pointer rounded-xl transition-all duration-300 group
-                                                ${isActive
-                                                    ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-lg transform scale-[1.02]'
-                                                    : 'text-gray-700 hover:bg-gray-100 hover:shadow-md hover:transform hover:scale-[1.01]'
-                                                }
-                                            `}
-                                            onClick={() => handleMenuClick(item)}
-                                        >
-                                            <div className="py-3 px-4 flex items-center justify-between">
-                                                <div className="flex items-center space-x-3">
-                                                    <div className={`
-                                                        p-2 rounded-lg transition-all duration-300
-                                                        ${isActive
-                                                            ? 'bg-white/20 text-white'
-                                                            : 'bg-gray-100 text-gray-600 group-hover:bg-blue-100 group-hover:text-blue-600'
-                                                        }
-                                                    `}>
-                                                        <Icon size={16} />
-                                                    </div>
-                                                    <span className="text-sm font-medium">{item.label}</span>
-                                                </div>
-                                                <div className="flex items-center space-x-2">
-                                                    {item.tag && (
-                                                        <span className={`
-                                                            text-xs px-2 py-1 rounded-full font-medium transition-all duration-300
-                                                            ${isActive
-                                                                ? 'bg-white/20 text-white'
-                                                                : 'bg-gradient-to-r from-emerald-100 to-emerald-200 text-emerald-700'
-                                                            }
-                                                        `}>
-                                                            {item.tag}
-                                                        </span>
-                                                    )}
-                                                    <ChevronRight
-                                                        size={16}
-                                                        className={`
-                                                            transform transition-all duration-300 ease-in-out
-                                                            ${isExpanded ? 'rotate-90' : 'rotate-0'}
-                                                            ${isActive ? 'text-white' : 'text-gray-400'}
-                                                        `}
-                                                    />
-                                                </div>
-                                            </div>
-                                        </div>
+                        return (
+                            <div key={item.id} className="mb-1">
+                                {/* Menu item */}
+                                <div
+                                    onClick={() => handleMenuClick(item)}
+                                    className={`transition-all duration-300 flex items-center ${
+                                        isCollapsed && !isMobile 
+                                            ? "justify-center py-3 mb-2 cursor-pointer hover:bg-[var(--color-bg-gradient-start)] rounded-lg" 
+                                            : "px-4 py-3 cursor-pointer rounded-xl"
+                                    } ${
+                                        // Show active state appropriately for collapsed/expanded
+                                        isActive && (!isCollapsed || isMobile)
+                                            ? "bg-gradient-to-r from-[var(--color-blue)] to-[var(--color-blue-dark)] text-white shadow-lg"
+                                            : isActive && isCollapsed && !isMobile
+                                            ? "bg-[var(--color-blue)] text-white rounded-lg"
+                                            : "text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-gradient-start)]"
+                                    }`}
+                                >
+                                    {isCollapsed && !isMobile ? (
+                                        // Collapsed desktop view - just the icon
+                                        <Icon 
+                                            size={20} 
+                                            className={isActive ? "text-white" : "text-[var(--color-text-secondary)]"}
+                                        />
                                     ) : (
-                                        // Menu item without submenu (using Link)
-                                        <Link
-                                            to={item.path}
-                                            className={`
-                                                relative block rounded-xl transition-all duration-300 group
-                                                ${isActive
-                                                    ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-lg transform scale-[1.02]'
-                                                    : 'text-gray-700 hover:bg-gray-100 hover:shadow-md hover:transform hover:scale-[1.01]'
-                                                }
-                                            `}
-                                            onClick={() => setExpandedSubmenu(null)}
-                                        >
-                                            <div className="py-3 px-4 flex items-center justify-between">
-                                                <div className="flex items-center space-x-3">
-                                                    <div className={`
-                                                        p-2 rounded-lg transition-all duration-300
-                                                        ${isActive
-                                                            ? 'bg-white/20 text-white'
-                                                            : 'bg-gray-100 text-gray-600 group-hover:bg-blue-100 group-hover:text-blue-600'
-                                                        }
-                                                    `}>
-                                                        <Icon size={16} />
-                                                    </div>
-                                                    <span className="text-sm font-medium">{item.label}</span>
-                                                </div>
-                                                {item.tag && (
-                                                    <span className={`
-                                                        text-xs px-2 py-1 rounded-full font-medium transition-all duration-300
-                                                        ${isActive
-                                                            ? 'bg-white/20 text-white'
-                                                            : 'bg-gradient-to-r from-emerald-100 to-emerald-200 text-emerald-700'
-                                                        }
-                                                    `}>
-                                                        {item.tag}
-                                                    </span>
-                                                )}
+                                        // Expanded view or mobile - full layout
+                                        <>
+                                            <div
+                                                className={`p-2 rounded-full ${
+                                                    isActive && (!isCollapsed || isMobile)
+                                                        ? "bg-[var(--color-bg-secondary-20)] text-white"
+                                                        : "bg-[var(--color-bg-gradient-start)] text-[var(--color-text-secondary)]"
+                                                }`}
+                                            >
+                                                <Icon size={16} />
                                             </div>
-                                        </Link>
-                                    )}
-
-                                    {/* Animated Submenu */}
-                                    {hasSubmenu && (
-                                        <div
-                                            className="overflow-hidden transition-all duration-500 ease-in-out"
-                                            style={{
-                                                maxHeight: isExpanded ? `${getSubmenuHeight(item.id)}px` : '0px',
-                                                opacity: isExpanded ? 1 : 0,
-                                            }}
-                                        >
-                                            <div className="ml-6 mt-2 space-y-2">
-                                                {item.submenu.map((subItem, index) => {
-                                                    const isSubmenuActive = activeSubmenuPath === subItem.path;
-                                                    const isMaster = subItem.label === 'Master';
-
-                                                    return (
-                                                        <Link
-                                                            key={index}
-                                                            to={subItem.path}
-                                                            className={`
-                                                                flex items-center py-2 px-4 text-sm rounded-lg 
-                                                                transition-all duration-300 hover:shadow-sm
-                                                                border-l-2 hover:pl-6
-                                                                ${isSubmenuActive
-                                                                    ? 'bg-blue-100 text-blue-700 border-blue-400 font-medium shadow-sm'
-                                                                    : 'text-gray-600 border-transparent hover:bg-blue-50 hover:text-blue-600 hover:border-blue-300'
-                                                                }
-                                                            `}
-                                                            style={{
-                                                                animationDelay: `${index * 50}ms`
-                                                            }}
-                                                        >
-                                                            <div className={`
-                                                                w-2 h-2 rounded-full mr-3 transition-colors duration-300
-                                                                ${isMaster
-                                                                    ? (isSubmenuActive ? 'bg-yellow-400' : 'bg-yellow-300 hover:bg-yellow-400')
-                                                                    : (isSubmenuActive ? 'bg-blue-400' : 'bg-gray-300 hover:bg-blue-400')
-                                                                }
-                                                            `}></div>
-                                                            <div className="flex items-center space-x-2">
-                                                                {isMaster && (
-                                                                    <Star size={12} className={`
-                                                                        ${isSubmenuActive ? 'text-yellow-500' : 'text-yellow-400'}
-                                                                    `} />
-                                                                )}
-                                                                <span>{subItem.label}</span>
-                                                            </div>
-                                                        </Link>
-                                                    );
-                                                })}
-                                            </div>
-                                        </div>
+                                            {(!isCollapsed || isMobile) && (
+                                                <span className="ml-3 text-sm font-medium">{item.label}</span>
+                                            )}
+                                            {hasSub && (!isCollapsed || isMobile) && (
+                                                <ChevronRight
+                                                    size={16}
+                                                    className={`ml-auto transform transition-transform ${
+                                                        isExpanded ? "rotate-90" : ""
+                                                    }`}
+                                                />
+                                            )}
+                                        </>
                                     )}
                                 </div>
-                            );
-                        })}
 
-                        {/* Extra padding at bottom for better scrolling */}
-                        <div className="h-4"></div>
-                    </div>
-
-                    {/* Bottom fade overlay */}
-                    <div className="absolute bottom-0 left-0 right-0 h-4 z-10 scrollbar-fade-bottom"></div>
-                </div>
-
-                {/* Enhanced Footer */}
-                <div className="absolute bottom-0 left-0 right-0 border-t border-gray-100 p-4 bg-gradient-to-r from-gray-50 to-blue-50">
-                    <div className="flex items-center space-x-3 p-3 bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow duration-300">
-                        <div className="p-2 bg-blue-100 rounded-lg">
-                            <Phone size={16} className="text-blue-600" />
-                        </div>
-                        <div>
-                            <p className="text-xs text-gray-500 font-medium">Need Help?</p>
-                            <p className="text-sm font-semibold text-blue-600">+91 9769922344</p>
-                        </div>
-                    </div>
+                                {/* Submenu */}
+                                {hasSub && (!isCollapsed || isMobile) && (
+                                    <div
+                                        className="overflow-hidden transition-all duration-300"
+                                        style={{
+                                            maxHeight: isExpanded ? `${item.submenu.length * 40}px` : "0px",
+                                        }}
+                                    >
+                                        {item.submenu.map((sub, idx) => (
+                                            <Link
+                                                key={idx}
+                                                to={sub.path}
+                                                onClick={() => isMobile && setIsCollapsed(true)}
+                                                className={`block py-2 pl-10 text-sm ${
+                                                    activeSubmenuPath === sub.path
+                                                        ? "bg-[var(--color-blue-lighter)] text-[var(--color-blue-darker)]"
+                                                        : "text-[var(--color-text-secondary)] hover:bg-[var(--color-blue-lightest)]"
+                                                }`}
+                                            >
+                                                {sub.label === "Master" && <Star size={12} className="mr-2 inline" />}
+                                                {sub.label}
+                                            </Link>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+                        );
+                    })}
                 </div>
             </div>
         </>
-    )
+    );
 };
 
 export default Sidebar;

@@ -1,3 +1,841 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Apply to all scrollable elements */
+* {
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-blue) var(--color-scrollbar-track);
+    scroll-behavior: smooth;
+}
+
+*::-webkit-scrollbar {
+    width: 6px;
+}
+
+*::-webkit-scrollbar-track {
+    background: var(--color-scrollbar-track);
+    border-radius: 10px;
+    margin: 8px 0;
+}
+
+*::-webkit-scrollbar-thumb {
+    background: var(--color-scrollbar-thumb);
+    border-radius: 10px;
+    transition: all 0.3s ease;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+    background: var(--color-scrollbar-thumb-hover);
+}
+
+:root {
+    /* Background Colors */
+    --color-bg-primary: #eff2f5;
+    --color-bg-secondary: #ffffff;
+    --color-bg-secondary-20: rgba(255, 255, 255, 0.2);
+    --color-bg-secondary-30: rgba(255, 255, 255, 0.3);
+    --color-bg-gray-light: #e5e7eb;
+    --color-bg-gradient-start: #f1f5f9;
+    --color-bg-gradient-end: #e0f2fe;
+    --color-bg-card: #ffffff;
+    --color-bg-hover: #f1f5f9;
+    --color-bg-sidebar: #f8fafc;
+    --color-bg-sidebar-to: #ffffff;
+    --color-bg-surface: #ffffff;
+
+    /* Border Colors */
+    --color-border-primary: #E2E8F0;
+    --color-border-secondary: #d1d5db;
+    --color-border-focus: #3b82f6;
+    --color-border-error: #ef4444;
+    --color-border-divider: #e5e7eb;
+
+    /* Blue Color Variants */
+    --color-blue-lightest: #eff6ff;
+    --color-blue-lighter: #dbeafe;
+    --color-blue-light: #93c5fd;
+    --color-blue: #3b82f6;
+    --color-blue-dark: #2563eb;
+    --color-blue-darker: #1d4ed8;
+    --color-blue-darkest: #1e40af;
+
+    /* Text Colors */
+    --color-text-primary: #1f2937;
+    --color-text-secondary: #656c7a;
+    --color-text-muted: #9ca3af;
+    --color-text-white: #ffffff;
+    --color-text-white-90: #e6e6e6;
+    --color-text-blue: #2563eb;
+    --color-text-error: #dc2626;
+    --color-text-success: #047857;
+
+    /* State Colors */
+    --color-success-light: #d1fae5;
+    --color-success-lighter: #a7f3d0;
+    --color-success: #10b981;
+    --color-success-medium: #059669;
+    --color-success-dark: #047857;
+
+    --color-warning: #facc15;
+    --color-warning-light: #fef9c3;
+    --color-warning-dark: #b45309;
+    --color-warning-dark-bg: #736200e9;
+
+    --color-error-light: #fee2e2;
+    --color-error-lighter: #fecaca;
+    --color-error: #ef4444;
+    --color-error-dark: #dc2626;
+    --color-error-darker: #b91c1c;
+
+    /* Special Colors */
+    --color-yellow-light: #fde68a;
+    --color-yellow: #facc15;
+    --color-yellow-dark: #eab308;
+
+    /* Shadow Colors */
+    --color-shadow-light: rgba(0, 0, 0, 0.05);
+    --color-shadow-medium: rgba(0, 0, 0, 0.1);
+    --color-shadow-dark: rgba(0, 0, 0, 0.15);
+
+    /* Scrollbar Colors */
+    --color-scrollbar-track: #f1f5f9;
+    --color-scrollbar-thumb: linear-gradient(45deg, var(--color-blue), #6366f1);
+    --color-scrollbar-thumb-hover: linear-gradient(45deg, var(--color-blue-dark), #4f46e5);
+
+    --color-modal-bg: #ffffff;
+    --color-modal-overlay: rgba(0, 0, 0, 0.5);
+    --color-modal-header-bg: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+    --color-modal-content-bg: #ffffff;
+    --color-modal-footer-bg: #f8fafc;
+
+    /* Card backgrounds */
+    --color-card-info-bg: #eff6ff;
+    --color-card-info-border: #dbeafe;
+    --color-card-detail-bg: #f8fafc;
+    --color-card-detail-border: #e2e8f0;
+
+    /* Status colors for cards */
+    --color-status-success-bg: #ecfdf5;
+    --color-status-success-border: #bbf7d0;
+    --color-status-warning-bg: #fefce8;
+    --color-status-warning-border: #fef08a;
+    --color-status-error-bg: #fef2f2;
+    --color-status-error-border: #fecaca;
+
+    /* Icon backgrounds */
+    --color-icon-blue-bg: #eff6ff;
+    --color-icon-success-bg: #ecfdf5;
+    --color-icon-warning-bg: #fefce8;
+    --color-icon-error-bg: #fef2f2;
+}
+
+/* Custom Scrollbar Styles */
+.custom-scrollbar::-webkit-scrollbar {
+    width: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+    background: var(--color-scrollbar-track);
+    border-radius: 10px;
+    margin: 8px 0;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    background: var(--color-scrollbar-thumb);
+    border-radius: 10px;
+    transition: all 0.3s ease;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: var(--color-scrollbar-thumb-hover);
+    width: 6px;
+}
+
+/* Firefox */
+.custom-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-blue) var(--color-scrollbar-track);
+}
+
+.scrollbar-fade-top {
+    background: linear-gradient(180deg, rgba(248, 250, 252, 0.9) 0%, transparent 100%);
+    pointer-events: none;
+}
+
+.scrollbar-fade-bottom {
+    background: linear-gradient(0deg, rgba(248, 250, 252, 0.9) 0%, transparent 100%);
+    pointer-events: none;
+}
+
+.dark-theme .scrollbar-fade-top {
+    background: none;
+}
+
+.dark-theme .scrollbar-fade-bottom {
+    background: none;
+}
+
+/* Utility Classes */
+.shadow-custom {
+    box-shadow: 0 4px 6px -1px var(--color-shadow-light), 0 2px 4px -1px var(--color-shadow-light);
+}
+
+.shadow-custom-hover {
+    box-shadow: 0 10px 15px -3px var(--color-shadow-medium), 0 4px 6px -2px var(--color-shadow-medium);
+}
+
+.transition-custom {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Animation Classes */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.animate-fadeIn {
+    animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateX(-100%);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+.animate-slideIn {
+    animation: slideIn 0.3s ease-out;
+}
+
+/* Loading Spinner */
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.animate-spin {
+    animation: spin 1s linear infinite;
+}
+
+/* Responsive Design Helpers */
+@media (max-width: 768px) {
+    :root {
+        --color-bg-sidebar: #ffffff;
+        --color-bg-sidebar-to: #f8fafc;
+    }
+}
+
+.custom-datepicker {
+    width: 100%;
+    height: 50px;
+    border: 1px solid var(--color-border-primary);
+    border-radius: 0.5rem;
+    padding: 0.5rem 0.75rem;
+    font-size: 0.875rem;
+    color: var(--color-text-primary);
+}
+
+.custom-datepicker:focus {
+    outline: none;
+}
+
+.custom-datepicker::placeholder {
+    color: var(--color-text-primary);
+}
+
+.month-picker-input {
+    width: 100%;
+    padding: 0.5rem 0.75rem;
+    background-color: var(--color-bg-primary);
+    border: 1px solid var(--color-border-secondary);
+    border-radius: 0.5rem;
+    color: var(--color-text-primary);
+    font-size: 0.875rem;
+}
+
+.month-picker-input:focus {
+    outline: none;
+    ring: 2px;
+    ring-color: var(--color-blue-light);
+    border-color: transparent;
+}
+
+.react-datepicker-wrapper {
+    width: 100%;
+}
+
+.react-datepicker__input-container {
+    width: 100%;
+}
+
+.react-datepicker__month-text:hover:not(.react-datepicker__month-text--disabled) {
+    background-color: var(--color-blue-);
+    color: var(--color-blue-dark);
+}
+.react-datepicker__month-text {
+    color: var(--color-text-primary);
+    padding: 0.5rem;
+    padding-left: 0.1rem;
+    margin: 0.25rem;
+    border-radius: 0.375rem;
+}
+
+
+.react-datepicker__month-text--selected {
+    background-color: var(--color-blue-dark);
+    color: var(--color-text-white);
+}
+
+.react-datepicker__month-text--today {
+    background-color: var(--color-blue-lightest);
+    color: var(--color-blue-dark);
+    font-weight: bold;
+}
+
+.react-datepicker__navigation {
+    top: 10px;
+}
+
+.react-datepicker__navigation--previous {
+    border-right-color: var(--color-text-white);
+}
+
+.react-datepicker__navigation--next {
+    border-left-color: var(--color-text-white);
+}
+
+.react-datepicker__year-text {
+    color: var(--color-text-primary);
+    padding: 0.5rem;
+    margin: 0.25rem;
+    border-radius: 0.375rem;
+}
+
+.react-datepicker__year-text:hover:not(.react-datepicker__day--disabled) {
+    background-color: var(--color-blue-light);
+    color: var(--color-text-white);
+}
+
+.react-datepicker__year-text--selected {
+    background-color: var(--color-blue-dark);
+    color: var(--color-text-white);
+}
+
+.react-datepicker__month-container {
+    background-color: var(--color-bg-secondary);
+}
+
+/* Base container */
+.react-datepicker {
+    background-color: var(--color-bg-gray-light);
+    color: var(--color-text-primary);
+    border: 1px solid var(--color-border-secondary);
+    border-radius: 12px;
+    padding: 10px;
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    width: 100%;
+}
+
+/* Header styling */
+.react-datepicker__header {
+    background-color: var(--color-bg-secondary);
+    border-bottom: 1px solid var(--color-border-secondary);
+    padding: 10px;
+    border-radius: 10px 10px 0 0;
+    position: relative;
+}
+
+/* Current month name */
+.react-datepicker__current-month,
+.react-datepicker-time__header,
+.react-datepicker-year-header {
+    font-weight: 600;
+    font-size: 15px;
+    color: var(--color-text-primary);
+    margin-bottom: 8px;
+}
+
+/* Day name (Mon, Tue...) */
+.react-datepicker__day-name {
+    color: var(--color-text-primary);
+    margin: 6px;
+    font-weight: 500;
+}
+
+/* Day cells */
+.react-datepicker__day {
+    width: 36px;
+    height: 36px;
+    line-height: 36px;
+    margin: 2px;
+    border-radius: 8px;
+    text-align: center;
+    transition: background-color 0.2s ease, color 0.2s ease;
+    font-weight: 500;
+    color: var(--color-text-primary);
+}
+
+/* Hover effect on days */
+.react-datepicker__day:hover:not(.react-datepicker__day--disabled){
+    background-color: var(--color-blue);
+    color: #fff;
+    cursor: pointer;
+}
+
+/* Selected and keyboard-selected day */
+.react-datepicker__day--selected,
+.react-datepicker__day--keyboard-selected {
+    background-color: var(--color-blue);
+    color: #fff;
+    font-weight: 600;
+}
+
+/* Today styling */
+.react-datepicker__day--today {
+    border: 1px solid var(--color-blue);
+    font-weight: 600;
+    color: var(--color-text-white);
+}
+
+/* Disabled days */
+.react-datepicker__day--disabled {
+    color: var(--color-text-muted);
+    background-color: transparent;
+    cursor: not-allowed;
+    opacity: 0.5;
+}
+
+/* Navigation arrows */
+.react-datepicker__navigation {
+    top: 15px;
+    width: 30px;
+    height: 30px;
+    border: none;
+    background: transparent;
+    position: absolute;
+    cursor: pointer;
+    z-index: 50;
+}
+
+.react-datepicker__navigation--previous {
+    left: 23%;
+}
+
+.react-datepicker__navigation--next {
+    right: 23%;
+}
+
+/* Month container spacing */
+.react-datepicker__month-container {
+    padding: 0 5px;
+}
+
+/* Header styling */
+.react-datepicker__header {
+    background-color: var(--color-bg-secondary);
+    border-bottom: 1px solid var(--color-border-secondary);
+    padding: 10px;
+    border-radius: 10px 10px 0 0;
+    position: relative;
+}
+
+/* Year dropdown styling */
+.react-datepicker__year-dropdown-container {
+    position: relative;
+    display: inline-block;
+    padding-top: 5px;
+}
+
+.react-datepicker__year-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: var(--color-bg-gray-light);
+    border: 1px solid var(--color-border-secondary);
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    z-index: 100;
+    max-height: 200px;
+    overflow-y: auto;
+    min-width: 90px;
+    padding: 4px 10px;
+}
+
+.react-datepicker__year-option {
+    padding: 8px 16px;
+    font-size: 14px;
+    color: var(--color-text-primary);
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    text-align: center;
+    font-weight: 500;
+}
+
+.react-datepicker__year-option:hover {
+    background-color: var(--color-blue);
+    color: #fff;
+}
+
+
+/* Year read view (clickable year text) */
+.react-datepicker__year-read-view {
+    cursor: pointer;
+    padding: 2px 8px;
+    border-radius: 4px;
+    transition: background-color 0.2s ease;
+    display: inline-block;
+    position: relative;
+}
+
+.react-datepicker__year-read-view:hover {
+    background-color: var(--color-bg-secondary);
+}
+
+/* Month dropdown styling */
+.react-datepicker__month-dropdown-container {
+    position: relative;
+    display: inline-block;
+    padding-top: 5px;
+}
+
+.react-datepicker__month-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: var(--color-bg-gray-light);
+    border: 1px solid var(--color-border-secondary);
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    z-index: 100;
+    max-height: 200px;
+    overflow-y: auto;
+    min-width: 120px;
+    padding: 4px 0;
+}
+
+.react-datepicker__month-option {
+    padding: 8px 16px;
+    font-size: 14px;
+    color: var(--color-text-primary);
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    text-align: center;
+    font-weight: 500;
+}
+
+.react-datepicker__month-option:hover {
+    background-color: var(--color-blue);
+    color: #fff;
+}
+
+.react-datepicker__month-option--selected {
+    background-color: var(--color-blue);
+    color: #fff;
+    font-weight: 600;
+}
+
+/* Month read view (clickable month text) */
+.react-datepicker__month-read-view {
+    cursor: pointer;
+    padding: 2px 8px;
+    border-radius: 4px;
+    transition: background-color 0.2s ease;
+    display: inline-block;
+    position: relative;
+}
+
+.react-datepicker__month-read-view:hover {
+    background-color: var(--color-bg-secondary);
+}
+
+/* Custom scrollbar for dropdowns */
+.react-datepicker__year-dropdown::-webkit-scrollbar,
+.react-datepicker__month-dropdown::-webkit-scrollbar {
+    width: 6px;
+}
+
+.react-datepicker__year-dropdown::-webkit-scrollbar-track,
+.react-datepicker__month-dropdown::-webkit-scrollbar-track {
+    background: var(--color-bg-secondary);
+    border-radius: 3px;
+}
+
+.react-datepicker__year-dropdown::-webkit-scrollbar-thumb,
+.react-datepicker__month-dropdown::-webkit-scrollbar-thumb {
+    background: var(--color-border-secondary);
+    border-radius: 3px;
+}
+
+.react-datepicker__year-dropdown::-webkit-scrollbar-thumb:hover,
+.react-datepicker__month-dropdown::-webkit-scrollbar-thumb:hover {
+    background: var(--color-blue);
+}
+
+
+
+
+/* Replace your existing dark theme text overrides with these more specific ones */
+
+.dark-theme {
+    --color-bg-primary: #1f2937;
+    --color-bg-secondary: #111827;
+    --color-bg-secondary-20: rgba(35, 35, 42, 0.2);
+    --color-bg-secondary-30: rgba(35, 35, 42, 0.3);
+    --color-bg-surface: #1f2937;
+    --color-bg-gray-light: #27272a;
+    --color-bg-gradient-start: #18181b;
+    --color-bg-gradient-end: #18181b;
+    --color-bg-card: #23232a;
+    --color-bg-hover: #374151;
+    --color-bg-sidebar: #18181b;
+    --color-bg-sidebar-to: #18181b;
+    --color-border-primary: #27272a;
+    --color-border-secondary: #3f3f46;
+    --color-border-focus: #818cf8;
+    --color-border-error: #ef4444;
+    --color-border-divider: #27272a;
+    --color-blue-lightest: #1e293b;
+    --color-blue-lighter: #334155;
+    --color-blue-light: #64748b;
+    --color-blue: #60a5fa;
+    --color-blue-dark: #3b82f6;
+    --color-blue-darker: #2563eb;
+    --color-blue-darkest: #1d4ed8;
+    --color-text-primary: #f3f4f6;
+    --color-text-secondary: #9ca3af;
+    --color-text-muted: #ffffff;
+    --color-text-white: #ffffff;
+    --color-text-white-90: #ffffff;
+    --color-text-blue: #60a5fa;
+    --color-text-error: #da4444;
+    --color-text-success: #34d399;
+    --color-success-light: #166534;
+    --color-success-lighter: #22c55e;
+    --color-success: #34d399;
+    --color-success-medium: #22d3ee;
+    --color-success-dark: #0e7490;
+    --color-warning-light: #fef08a;
+    --color-warning-lighter: #fde047;
+    --color-warning: #ad8b00;
+    --color-warning-dark: #ca8a04;
+    --color-error-light: #fca5a5;
+    --color-error-lighter: #f87171;
+    --color-error: #ef4444;
+    --color-error-dark: #b91c1c;
+    --color-error-darker: #7f1d1d;
+    --color-yellow-light: #fef08a;
+    --color-yellow: #fde047;
+    --color-yellow-dark: #ca8a04;
+    --color-shadow-light: rgba(0, 0, 0, 0.5);
+    --color-shadow-medium: rgba(0, 0, 0, 0.7);
+    --color-shadow-dark: rgba(0, 0, 0, 0.9);
+    --color-scrollbar-track: #23232a;
+    --color-scrollbar-thumb: #60a5fa;
+    --color-scrollbar-thumb-hover: #3b82f6;
+
+    /* Modal specific colors */
+    --color-modal-bg: #1e293b;
+    --color-modal-overlay: rgba(0, 0, 0, 0.75);
+    --color-modal-header-bg: linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%);
+    --color-modal-content-bg: #1e293b;
+    --color-modal-footer-bg: #0f172a;
+
+    /* Card backgrounds */
+    --color-card-info-bg: #1e3a8a;
+    --color-card-info-border: #3730a3;
+    --color-card-detail-bg: #334155;
+    --color-card-detail-border: #475569;
+
+    /* Status colors for cards */
+    --color-status-success-bg: #064e3b;
+    --color-status-success-border: #047857;
+    --color-status-warning-bg: #f7e700;
+    --color-status-warning-border: #a16207;
+    --color-status-error-bg: #7f1d1d;
+    --color-status-error-border: #dc2626;
+
+    /* Icon backgrounds */
+    --color-icon-blue-bg: #1e3a8a;
+    --color-icon-success-bg: #064e3b;
+    --color-icon-warning-bg: #451a03;
+    --color-icon-error-bg: #7f1d1d;
+}
+
+/* More specific dark theme text overrides - target specific elements instead of all text */
+.dark-theme h1,
+.dark-theme h2,
+.dark-theme h3,
+.dark-theme h4,
+.dark-theme h5,
+.dark-theme h6 {
+    color: #ffffff !important;
+}
+
+.dark-theme p:not([class*="text-"]),
+.dark-theme span:not([class*="text-"]),
+.dark-theme div:not([class*="text-"]),
+.dark-theme label:not([class*="text-"]) {
+    color: #ffffff !important;
+}
+
+/* Target specific text using CSS variables */
+.dark-theme .text-\[var\(--color-text-primary\)\] {
+    color: #ffffff !important;
+}
+
+.dark-theme .text-\[var\(--color-text-secondary\)\] {
+    color: #9ca3af !important;
+}
+
+/* Override only neutral gray text classes, not color-specific ones */
+.dark-theme .text-gray-50,
+.dark-theme .text-gray-100,
+.dark-theme .text-gray-200,
+.dark-theme .text-gray-300,
+.dark-theme .text-gray-400,
+.dark-theme .text-gray-500,
+.dark-theme .text-gray-600,
+.dark-theme .text-gray-700,
+.dark-theme .text-gray-800,
+.dark-theme .text-gray-900 {
+    color: #ffffff !important;
+}
+
+.dark-theme .text-slate-50,
+.dark-theme .text-slate-100,
+.dark-theme .text-slate-200,
+.dark-theme .text-slate-300,
+.dark-theme .text-slate-400,
+.dark-theme .text-slate-500,
+.dark-theme .text-slate-600,
+.dark-theme .text-slate-700,
+.dark-theme .text-slate-800,
+.dark-theme .text-slate-900 {
+    color: #ffffff !important;
+}
+
+/* DO NOT override color-specific text classes like text-green-600, text-blue-600, etc. */
+/* These should maintain their colors in dark mode for visual distinction */
+
+.dark-theme input,
+.dark-theme textarea,
+.dark-theme select {
+    background-color: #23232a !important;
+    color: #ffffff !important;
+    border-color: #3f3f46 !important;
+}
+
+.dark-theme input::placeholder,
+.dark-theme textarea::placeholder {
+    color: #bdbdbd !important;
+    opacity: 1;
+}
+
+.dark-theme input:focus,
+.dark-theme textarea:focus,
+.dark-theme select:focus {
+    outline: none;
+    border-color: #818cf8 !important;
+    box-shadow: 0 0 0 2px #818cf8;
+}
+
+
+
+
+/* Add this to your global CSS or create a separate CSS file for security */
+/* Security styles for subscription pages */
+.subscription-security {
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+
+    -webkit-touch-callout: none;
+    -webkit-tap-highlight-color: transparent;
+
+    /* Disable drag and drop */
+    -webkit-user-drag: none;
+    -khtml-user-drag: none;
+    -moz-user-drag: none;
+    -o-user-drag: none;
+    user-drag: none;
+
+    /* Disable text selection highlighting */
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+
+    /* Disable image dragging */
+    -webkit-user-drag: none;
+    -khtml-user-drag: none;
+    -moz-user-drag: none;
+    -o-user-drag: none;
+    user-drag: none;
+
+    /* Disable context menu */
+    -webkit-context-menu: none;
+
+    /* Disable print */
+    -webkit-print-color-adjust: exact;
+}
+
+/* Disable text selection on all elements */
+.subscription-security *,
+.subscription-security *::before,
+.subscription-security *::after {
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+
+    -webkit-touch-callout: none;
+    -webkit-tap-highlight-color: transparent;
+}
+
+/* Disable image dragging */
+.subscription-security img {
+    -webkit-user-drag: none;
+    -khtml-user-drag: none;
+    -moz-user-drag: none;
+    -o-user-drag: none;
+    user-drag: none;
+    pointer-events: none;
+}
+
+/* Hide scrollbars to prevent right-click on them */
+.subscription-security::-webkit-scrollbar {
+    display: none;
+}
+
+.subscription-security {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+/* Disable print media queries */
+@media print {
+    .subscription-security {
+        display: none !important;
+    }
+}
