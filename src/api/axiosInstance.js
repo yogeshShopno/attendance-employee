@@ -13,8 +13,9 @@ const api = axios.create({
 api.interceptors.request.use(
     (config) => {
         // Add basic auth credentials
-        const username = 'attendance';
-        const password =  '20$tgbsv09u';    
+        const username = import.meta.env.VITE_API_USERNAME;
+        const password = import.meta.env.VITE_API_PASSWORD;
+
         const basicAuth = `Basic ${btoa(`${username}:${password}`)}`;
 
         config.headers.Authorization = basicAuth;
