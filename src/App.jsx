@@ -15,7 +15,7 @@ const App = () => {
   const isUnauthorizedPage = location.pathname === "/unauthorized";
   const shouldHideNavigation = isLoginPage || isUnauthorizedPage;
 
-  const [isCollapsed, setIsCollapsed] = useState(false);
+  const [isCollapsed, setIsCollapsed] = useState(true);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 1024);
 
   useEffect(() => {
