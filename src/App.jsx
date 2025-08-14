@@ -47,10 +47,10 @@ const App = () => {
 
   return (
     <ThemeProvider>
-      <div className="flex flex-col h-screen overflow-hidden bg-[var(--color-bg-primary)]">
+      <div className="flex flex-col min-h-screen bg-[var(--color-bg-primary)]">
         {!shouldHideNavigation && <Navbar />}
 
-        <div className="flex flex-1 relative">
+        <div className="flex flex-1">
           {!shouldHideNavigation && (
             <Sidebar
               isCollapsed={isCollapsed}
@@ -59,18 +59,16 @@ const App = () => {
           )}
 
           <main
-            className="flex-1 overflow-y-auto bg-[var(--color-bg-primary)]"
+            className="flex-1 bg-[var(--color-bg-primary)] overflow-y-auto"
             style={getMainContentStyle()}
           >
-            <div className="min-h-full w-full">
-              <Routes>
-                <Route path="/" element={<Login />} />
-                <Route path="/dashboard" element={<AttendanceDashboard />} />
-                <Route path="/attendance" element={<Attendance />} />
-                <Route path="/employee" element={<EmployeeProfile />} />
-                <Route path="/leave-application" element={<LeaveApplication />} />
-              </Routes>
-            </div>
+            <Routes>
+              <Route path="/" element={<Login />} />
+              <Route path="/dashboard" element={<AttendanceDashboard />} />
+              <Route path="/attendance" element={<Attendance />} />
+              <Route path="/employee" element={<EmployeeProfile />} />
+              <Route path="/leave-application" element={<LeaveApplication />} />
+            </Routes>
           </main>
         </div>
       </div>

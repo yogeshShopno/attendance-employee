@@ -173,7 +173,7 @@ const Sidebar = ({ isCollapsed, setIsCollapsed }) => {
             )}
 
             {/* Sidebar */}
-            <div className={getSidebarClasses()}>
+            <div className={`${getSidebarClasses()} flex flex-col`}>
                 {/* Desktop toggle button */}
                 {!isMobile && (
                     <div className="absolute -right-7 top-1/2 transform -translate-y-1/2 z-10">
@@ -187,8 +187,7 @@ const Sidebar = ({ isCollapsed, setIsCollapsed }) => {
                 )}
 
                 {/* Navigation */}
-                <div className={`h-full overflow-y-auto ${isCollapsed && !isMobile ? 'py-6 px-2' : 'py-4'} ${(!isCollapsed || !isMobile) ? 'px-3' : ''}`}>
-                    {menuItems.map((item) => {
+                <div className={`flex-1 overflow-y-auto scrollbar-thin scrollbar-track-[var(--color-scrollbar-track)] scrollbar-thumb-[var(--color-scrollbar-thumb)] ${isCollapsed && !isMobile ? 'py-6 px-2' : 'py-4'} ${(!isCollapsed || !isMobile) ? 'px-3' : ''}`}>                    {menuItems.map((item) => {
                         const Icon = item.icon;
                         const isActive = activeItem === item.id;
                         const isExpanded = expandedSubmenu === item.id;
